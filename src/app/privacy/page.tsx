@@ -12,7 +12,7 @@ export default function PrivacyPage() {
     <LegalLayout
       title="Privacy Policy"
       lastUpdated="June 2026"
-      intro="Welcome to Creativo (\u201Cwe\u201D, \u201Cour\u201D, or \u201Cus\u201D). Your privacy is important to us. This Privacy Policy explains how we collect, use, store, and protect your information when you use Creativo."
+      intro="Welcome to Creativo. Your privacy is important to us. This Privacy Policy explains how we collect, use, store, and protect your information when you use Creativo."
       sections={[
         {
           id: "information-we-collect",
