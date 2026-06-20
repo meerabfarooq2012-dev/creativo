@@ -409,3 +409,45 @@ Stage Summary:
 - ✅ Both pages public (no login required), linked from footer + signup form.
 - ✅ Reusable LegalLayout component ready for future legal pages.
 - ✅ Lint clean; mobile responsive; 0 console errors.
+
+---
+Task ID: 15 (Professional positioning + SEO)
+Agent: Main (Z.ai Code)
+Task: Per user — Creativo is not just drag-and-drop; it's a professional platform with layers-based design, animation, and editing. Also improve SEO.
+
+Work Log:
+- Rewrote landing copy to lead with professional capabilities (layers, animation, editing) + drag-and-drop as one of multiple ways to work:
+  - Hero badge: "Drag-and-drop templates" → "Layers · Animation · Editing — free to start"
+  - Hero subheadline: "Creativo is the free creative studio for everyone. Design with layers, animate, edit photos and videos, or start from a drag-and-drop template — a full professional toolset that works right in your browser."
+  - Final CTA: "Design with layers, animate, edit, or start from a template — a full professional toolset in one free, browser-based studio..."
+  - FAQ "Is Creativo really free?": "design with layers, build from drag-and-drop templates..."
+- Updated Free plan (`plans.ts`): description "Build with basic drag-and-drop templates" → "Layer-based editor + drag-and-drop templates — free forever."; features now lead with "Layer-based design editor", "Drag-and-drop templates", "Basic illustration & editing tools". Re-synced DB Plan rows.
+- SEO overhaul in `src/app/layout.tsx`:
+  - `metadataBase` set to https://creativo.app
+  - Title template ("%s | Creativo") + rich default title with keywords
+  - Expanded keywords (15): creative studio, free design tool, online design platform, layers editor, drag and drop design, illustration tool, animation software, video editing, photo editing, graphic design, design templates, etc.
+  - Full OpenGraph (type, locale, url, siteName, images) + Twitter card
+  - `robots` metadata (index/follow + googleBot max-image-preview/snippet/video)
+  - canonical via `alternates`
+  - JSON-LD structured data (schema.org `SoftwareApplication` with featureList + Offer price 0) injected via script tag in body
+- Added page-level metadata to `src/app/page.tsx` (title + description + canonical).
+- Created `src/app/sitemap.ts` (Next.js metadata route) — 7 URLs: /, /login, /signup, /privacy, /terms, /security, /cookies with lastmod/changefreq/priority.
+- Created `src/app/robots.ts` (Next.js metadata route) — allows /, disallows /dashboard, /admin, /api; declares sitemap + host. Removed old static `public/robots.txt` to avoid conflict.
+- Made `/sitemap.xml` and `/robots.txt` always-public in middleware `authorized()` (they were being redirected to login).
+- Ran `bun run lint` → 0 errors.
+- Agent Browser verification:
+  - Title: "Creativo — Create Without Limits | Free Design, Animation & Editing Studio" ✅
+  - Meta description: full keyword-rich description ✅
+  - Canonical: https://creativo.app ✅
+  - OG title + JSON-LD (SoftwareApplication) present ✅
+  - 15 keywords ✅
+  - sitemap.xml: HTTP 200 application/xml, all 7 URLs ✅
+  - robots.txt: HTTP 200, disallows /dashboard /admin /api, declares sitemap ✅
+  - Free plan card: "Layer-based editor + drag-and-drop templates — free forever." + "Layer-based design editor" feature ✅
+  - 0 console errors ✅
+
+Stage Summary:
+- ✅ Positioning corrected: Creativo = professional layer-based design + animation + editing studio (drag-and-drop is one mode, not the whole pitch).
+- ✅ SEO significantly improved: rich metadata, JSON-LD structured data, sitemap.xml, robots.txt, canonical URLs, 15 target keywords, OG/Twitter cards.
+- ✅ All 4 legal pages indexable via sitemap; dashboard/admin/api excluded from indexing.
+- ✅ Lint clean; verified end-to-end in browser.

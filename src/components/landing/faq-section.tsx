@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: "Is Creativo really free to use?",
-    a: "Yes. The Free plan is yours to keep forever — create projects, build from templates with drag and drop, and export to PNG/JPG. No credit card is required to sign up. Paid plans (Student, Pro, Team) add more storage, premium templates, and advanced export formats, and you only upgrade when you need them.",
+    a: "Yes. The Free plan is yours to keep forever — design with layers, build from drag-and-drop templates, and export to PNG/JPG. No credit card is required to sign up. Paid plans (Student, Pro, Team) add more storage, premium templates, and advanced export formats, and you only upgrade when you need them.",
   },
   {
     q: "Can I cancel anytime?",

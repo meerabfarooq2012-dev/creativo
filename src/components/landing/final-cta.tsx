@@ -45,9 +45,9 @@ export function FinalCta() {
           </h2>
 
           <p className="max-w-xl text-base text-white/80 sm:text-lg">
-            Pick a template, drag and drop your ideas, and publish — all in one
-            free, browser-based studio. Start on the Free plan and upgrade only
-            when you need more.
+            Design with layers, animate, edit, or start from a template — a full
+            professional toolset in one free, browser-based studio. Start on the
+            Free plan and upgrade only when you need more.
           </p>
 
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">

@@ -17,35 +17,112 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://creativo.app";
+const SITE_DESCRIPTION =
+  "Creativo is a free creative studio for designers, illustrators, and professionals. Design with layers, animate, edit, and manage projects — drag-and-drop templates plus a full professional toolset, right in your browser.";
+
 export const metadata: Metadata = {
-  title: "Creativo — Create Without Limits",
-  description:
-    "Creativo is a modern Creative Studio platform for designers, illustrators, creators, and professionals. Create designs, illustrations, edit content, and manage creative projects.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Creativo — Create Without Limits | Free Design, Animation & Editing Studio",
+    template: "%s | Creativo",
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: "Creativo",
   keywords: [
     "Creativo",
-    "Creative Studio",
-    "Design Platform",
-    "Illustration",
-    "Photo Editing",
-    "SaaS",
-    "Creative Tools",
+    "creative studio",
+    "free design tool",
+    "online design platform",
+    "layers editor",
+    "drag and drop design",
+    "illustration tool",
+    "animation software",
+    "video editing",
+    "photo editing",
+    "graphic design",
+    "design templates",
+    "creative tools",
+    "SaaS design platform",
+    "design without limits",
   ],
   authors: [{ name: "Creativo" }],
+  creator: "Creativo",
+  publisher: "Creativo",
+  category: "Design",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
-    icon: "/logo.svg",
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
   },
   openGraph: {
-    title: "Creativo — Create Without Limits",
-    description:
-      "A modern Creative Studio platform for designers, illustrators, and creators.",
-    siteName: "Creativo",
     type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "Creativo",
+    title: "Creativo — Create Without Limits | Free Design, Animation & Editing Studio",
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/logo.svg",
+        width: 48,
+        height: 48,
+        alt: "Creativo logo",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Creativo — Create Without Limits",
     description:
-      "A modern Creative Studio platform for designers, illustrators, and creators.",
+      "Free creative studio with layers, animation, editing & drag-and-drop templates. Design professionally in your browser.",
+    images: ["/logo.svg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Creativo",
+  applicationCategory: "DesignApplication",
+  operatingSystem: "Web",
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    description: "Free plan available forever. Paid plans from $4/month.",
+  },
+  featureList: [
+    "Layer-based design editor",
+    "Drag-and-drop templates",
+    "Illustration tools",
+    "Animation",
+    "Video editing",
+    "Photo editing",
+    "Cloud storage",
+    "Team collaboration",
+  ],
+  publisher: {
+    "@type": "Organization",
+    name: "Creativo",
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.svg`,
   },
 };
 
@@ -59,6 +136,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -64,9 +64,8 @@ export function HeroSection() {
             >
               <Sparkles className="size-3.5 text-primary" />
               <span className="text-gradient font-semibold">
-                Drag-and-drop templates
+                Layers · Animation · Editing — free to start
               </span>
-              <span className="hidden sm:inline">— free to start</span>
             </Badge>
 
             <h1
@@ -79,10 +78,10 @@ export function HeroSection() {
             </h1>
 
             <p className="mx-auto max-w-xl text-base text-muted-foreground sm:text-lg lg:mx-0">
-              Creativo is the free Creative Studio for everyone. Pick a
-              template, drag and drop your ideas into place, and publish — no
-              design experience needed. Design, illustrate, and edit, all in
-              your browser.
+              Creativo is the free creative studio for everyone. Design with
+              layers, animate, edit photos and videos, or start from a
+              drag-and-drop template — a full professional toolset that works
+              right in your browser.
             </p>
 
             <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center lg:justify-start">

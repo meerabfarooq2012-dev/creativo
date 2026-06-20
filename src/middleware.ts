@@ -22,7 +22,15 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        // Public routes
+        // Always-public technical routes (SEO + assets)
+        if (
+          path === "/sitemap.xml" ||
+          path === "/robots.txt" ||
+          path === "/manifest.webmanifest"
+        ) {
+          return true;
+        }
+        // Public marketing/legal routes
         if (
           path === "/" ||
           path.startsWith("/login") ||

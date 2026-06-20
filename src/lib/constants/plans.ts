@@ -1,8 +1,8 @@
 // Creativo - Plans & Pricing
 //
 // Positioning:
-// - Free        → build with basic drag-and-drop templates (the free core)
-// - Student     → half-professional: unlocks pro tools like layers at a student price
+// - Free        → full editor with layers + drag-and-drop templates (free core)
+// - Student     → half-professional: pro tools at a student price
 // - Pro         → full professional toolset
 // - Team        → full professional + team collaboration
 
@@ -24,13 +24,14 @@ export const PLANS: PlanInfo[] = [
     id: "free",
     name: "FREE",
     displayName: "Free",
-    description: "Build with basic drag-and-drop templates — free forever.",
+    description: "Layer-based editor + drag-and-drop templates — free forever.",
     priceMonthly: 0,
     priceYearly: 0,
     storageLimitMb: 500,
     features: [
-      "Basic drag-and-drop editor",
-      "Basic templates",
+      "Layer-based design editor",
+      "Drag-and-drop templates",
+      "Basic illustration & editing tools",
       "5 Projects",
       "500 MB Storage",
       "PNG / JPG Export",
