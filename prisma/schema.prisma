@@ -1,0 +1,386 @@
+// Creativo SaaS Platform - Database Schema
+// Phase 1 Foundation
+// Adapted from Supabase requirements to Prisma + SQLite (sandbox environment)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// AUTHENTICATION & USERS
+// ============================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  name          String?
+  image         String?
+  status        String    @default("active") // active | suspended | banned
+  bannedReason  String?
+  bannedAt      DateTime?
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  projects      Project[]
+  folders       Folder[]
+  assets        Asset[]
+  notifications Notification[]
+  ticketsCreated  SupportTicket[] @relation("tickets_created")
+  ticketsAssigned SupportTicket[] @relation("tickets_assigned")
+  ticketReplies TicketReply[]
+  activityLogs  ActivityLog[]
+  securityLogs  SecurityLog[]
+  adminLogs     AdminLog[]
+  announcements Announcement[]
+  subscriptions Subscription[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================================
+// PROFILES & ROLES
+// ============================================================
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String?
+  username        String?  @unique
+  bio             String?
+  avatarUrl       String?
+  location        String?
+  website         String?
+  role            String   @default("FREE_USER") // FREE_USER | STUDENT | PRO | MODERATOR | ADMIN | SUPER_ADMIN
+  plan            String   @default("FREE") // FREE | STUDENT | PRO | TEAM
+  storageLimitMb  Int      @default(500)
+  storageUsedMb   Float    @default(0)
+  trialActive     Boolean  @default(false)
+  trialStartedAt  DateTime?
+  trialEndsAt     DateTime?
+  emailVerified   Boolean  @default(false)
+  emailVerifiedAt DateTime?
+  language        String   @default("en")
+  themePreference String   @default("dark")
+  notifyEmail     Boolean  @default(true)
+  notifyPush      Boolean  @default(true)
+  notifySecurity  Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Role {
+  id            String   @id @default(cuid())
+  name          String   @unique // FREE_USER | STUDENT | PRO | MODERATOR | ADMIN | SUPER_ADMIN
+  displayName   String
+  description   String?
+  permissions   String   @default("[]") // JSON array of permission strings
+  isSystem      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ============================================================
+// SUBSCRIPTIONS & PLANS
+// ============================================================
+
+model Subscription {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan        String    @default("FREE") // FREE | STUDENT | PRO | TEAM
+  status      String    @default("active") // active | canceled | past_due | trialing
+  startedAt   DateTime  @default(now())
+  endsAt      DateTime?
+  trialEndsAt DateTime?
+  amount      Float     @default(0)
+  currency    String    @default("USD")
+  interval    String?   // monthly | yearly
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Plan {
+  id            String   @id @default(cuid())
+  name          String   @unique // FREE | STUDENT | PRO | TEAM
+  displayName   String
+  description   String?
+  priceMonthly  Float    @default(0)
+  priceYearly   Float    @default(0)
+  currency      String   @default("USD")
+  storageLimitMb Int     @default(500)
+  features      String   @default("[]") // JSON array
+  isActive      Boolean  @default(true)
+  isPopular     Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ============================================================
+// PROJECTS & FOLDERS
+// ============================================================
+
+model Project {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folderId    String?
+  folder      Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  type        String    @default("design") // design | illustration | photo | video | animation
+  thumbnail   String?
+  status      String    @default("active") // active | archived | deleted
+  isFavorite  Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  sizeBytes   Float     @default(0)
+  metadata    String    @default("{}") // JSON
+  lastOpenedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([folderId])
+}
+
+model Folder {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      Folder?   @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Folder[]  @relation("FolderHierarchy")
+  name        String
+  color       String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  projects    Project[]
+
+  @@index([userId])
+  @@index([parentId])
+}
+
+// ============================================================
+// ASSETS & TEMPLATES
+// ============================================================
+
+model Asset {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name        String
+  type        String    // image | icon | font | sticker | shape | template
+  category    String?
+  url         String
+  thumbnailUrl String?
+  fileSize    Float     @default(0)
+  mimeType    String?
+  width       Int?
+  height      Int?
+  tags        String    @default("[]") // JSON array
+  isPublic    Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Template {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  category    String    // design | illustration | photo | video | animation
+  thumbnailUrl String?
+  previewUrl  String?
+  config      String    @default("{}") // JSON
+  tags        String    @default("[]")
+  isPremium   Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  usageCount  Int       @default(0)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String    // system | subscription | security | announcement
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  metadata  String    @default("{}")
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ============================================================
+// SUPPORT SYSTEM
+// ============================================================
+
+model SupportTicket {
+  id          String    @id @default(cuid())
+  ticketNo    String    @unique
+  userId      String
+  user        User      @relation("tickets_created", fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo  String?
+  assignee    User?     @relation("tickets_assigned", fields: [assignedTo], references: [id], onDelete: SetNull)
+  subject     String
+  description String
+  category    String    @default("general") // general | billing | technical | account | bug
+  priority    String    @default("medium") // low | medium | high | urgent
+  status      String    @default("open") // open | pending | resolved | closed
+  closedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  replies     TicketReply[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TicketReply {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  isStaff   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+}
+
+// ============================================================
+// ANNOUNCEMENTS
+// ============================================================
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  summary     String?
+  type        String    @default("info") // info | update | maintenance | release
+  audience    String    @default("all") // all | free | pro | admin
+  authorId    String?
+  author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  isPublished Boolean   @default(false)
+  isPinned    Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ============================================================
+// LOGS
+// ============================================================
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  category  String   @default("general") // auth | project | billing | admin | general
+  entity    String?
+  entityId  String?
+  ip        String?
+  userAgent String?
+  metadata  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+}
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event     String   // login_success | login_failed | logout | password_change | email_verify | role_change | ban | suspend
+  ip        String?
+  userAgent String?
+  location  String?
+  metadata  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([event])
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String?
+  admin     User?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  action    String
+  targetUserId String?
+  targetEntity String?
+  targetEntityId String?
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+}
