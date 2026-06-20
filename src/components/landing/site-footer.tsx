@@ -29,7 +29,7 @@ const FOOTER_COLUMNS = [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
       { label: "Security", href: "/security" },
-      { label: "Cookies", href: "/privacy" },
+      { label: "Cookies", href: "/cookies" },
     ],
   },
 ];

@@ -34,6 +34,7 @@ export default withAuth(
           path.startsWith("/privacy") ||
           path.startsWith("/terms") ||
           path.startsWith("/security") ||
+          path.startsWith("/cookies") ||
           path.startsWith("/api/auth")
         ) {
           return true;
