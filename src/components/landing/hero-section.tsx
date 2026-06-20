@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 const TRUST_BADGES = [
   "Free to use forever",
   "No credit card required",
-  "Start trial when you want",
+  "Start a free trial before you buy any plan",
 ];
 
 export function HeroSection() {
