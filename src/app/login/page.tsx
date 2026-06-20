@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,7 +39,6 @@ const DEMO_ACCOUNTS = [
 ];
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl =
     searchParams.get("callbackUrl") || searchParams.get("next") || "/dashboard";
@@ -72,25 +71,33 @@ function LoginContent() {
       });
 
       if (!res || res.error) {
-        toast.error("Invalid email or password. Please try again.");
+        const reason = res?.error === "CredentialsSignin"
+          ? "Invalid email or password. Please try again."
+          : res?.error || "Login failed. Please try again.";
+        toast.error(reason);
         return;
       }
 
       toast.success("Welcome back to Creativo!");
 
       // Determine redirect target based on user role
+      let target = callbackUrl;
       try {
+        // small delay to let the session cookie propagate
+        await new Promise((r) => setTimeout(r, 200));
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
         const role = session?.user?.role as string | undefined;
-        const target =
-          role === "ADMIN" || role === "SUPER_ADMIN" ? "/admin" : callbackUrl;
-        router.push(target);
-        router.refresh();
+        if (role === "ADMIN" || role === "SUPER_ADMIN") {
+          target = "/admin";
+        }
       } catch {
-        router.push(callbackUrl);
-        router.refresh();
+        // fall back to callbackUrl
       }
+      // Use a full-page navigation so the session cookie is firmly
+      // established before the protected route's middleware runs.
+      // This avoids redirect loops in proxied environments.
+      window.location.href = target;
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong. Please try again.");
