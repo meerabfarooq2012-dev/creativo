@@ -34,7 +34,7 @@ export function FinalCta() {
         <div className="relative flex flex-col items-center gap-6">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur">
             <Sparkles className="size-3.5" />
-            30-day free trial
+            Free to start · No credit card
           </span>
 
           <h2
@@ -45,8 +45,9 @@ export function FinalCta() {
           </h2>
 
           <p className="max-w-xl text-base text-white/80 sm:text-lg">
-            Join 50,000+ creators who design, illustrate, and edit all in one
-            place. No credit card required.
+            Pick a template, drag and drop your ideas, and publish — all in one
+            free, browser-based studio. Start on the Free plan and upgrade only
+            when you need more.
           </p>
 
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">

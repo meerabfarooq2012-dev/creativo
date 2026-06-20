@@ -19,9 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const TRUST_BADGES = [
+  "Free to use forever",
   "No credit card required",
-  "30-day free trial",
-  "Cancel anytime",
+  "Start trial when you want",
 ];
 
 export function HeroSection() {
@@ -64,9 +64,9 @@ export function HeroSection() {
             >
               <Sparkles className="size-3.5 text-primary" />
               <span className="text-gradient font-semibold">
-                New: Version History in Pro
+                Drag-and-drop templates
               </span>
-              <span className="hidden sm:inline">— try it free today</span>
+              <span className="hidden sm:inline">— free to start</span>
             </Badge>
 
             <h1
@@ -79,9 +79,10 @@ export function HeroSection() {
             </h1>
 
             <p className="mx-auto max-w-xl text-base text-muted-foreground sm:text-lg lg:mx-0">
-              Creativo is the modern Creative Studio for designers,
-              illustrators, creators, and professionals. Design, illustrate, and
-              edit — all in one place.
+              Creativo is the free Creative Studio for everyone. Pick a
+              template, drag and drop your ideas into place, and publish — no
+              design experience needed. Design, illustrate, and edit, all in
+              your browser.
             </p>
 
             <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center lg:justify-start">

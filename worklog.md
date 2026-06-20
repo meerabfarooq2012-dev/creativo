@@ -294,3 +294,39 @@ Stage Summary:
 - ✅ Logo verified rendering correctly (via VLM) on: landing header, landing footer, login brand panel, admin sidebar. Favicon verified.
 - ✅ Brand colors exactly match the uploaded sheet and the existing design system (#7C3AED → #22D3EE).
 - ✅ Lint clean; no console errors; backward-compatible component API.
+
+---
+Task ID: 11 (Free positioning: remove fake social proof + manual trial copy)
+Agent: Main (Z.ai Code)
+Task: Per user — Creativo is a FREE platform (users build from templates with drag-and-drop). Pricing stays as-is. Free trial must NOT auto-start after login (user activates manually). Remove all fake creators/stats/testimonials from the landing page.
+
+Work Log:
+- Removed fake social proof from landing page:
+  - Deleted `src/components/landing/stats-bar.tsx` (50K+ Creators / 2M+ Projects / 4.9 Rating / 120+ Countries — all fabricated).
+  - Deleted `src/components/landing/testimonials-section.tsx` (6 fake testimonial quotes with fabricated names).
+  - Removed `<StatsBar />` and `<TestimonialsSection />` from `src/app/page.tsx`.
+- Removed "Testimonials" nav link from `site-header.tsx` NAV_LINKS (now Features/Pricing/FAQ only).
+- Removed "Testimonials" link from the Product column in `site-footer.tsx`.
+- Fixed FinalCta (`final-cta.tsx`): removed "Join 50,000+ creators who design, illustrate, and edit..." fake claim. New copy: badge "Free to start · No credit card", paragraph "Pick a template, drag and drop your ideas, and publish — all in one free, browser-based studio. Start on the Free plan and upgrade only when you need more."
+- Fixed FAQ (`faq-section.tsx`) — the first answer incorrectly said "Sign up for any paid plan and your 30-day trial starts automatically". Rewrote to match the actual manual-activation behavior: "Your trial doesn't start automatically — you stay on the Free plan when you sign up. Whenever you're ready, open Settings → Account and tap 'Start your free trial'...". Added a new FAQ item "Is Creativo really free to use?" (Free plan is yours forever, drag-and-drop templates, PNG/JPG export, no card needed; paid plans add storage/premium templates/advanced exports).
+- Updated hero copy (`hero-section.tsx`): badge "New: Version History in Pro" → "Drag-and-drop templates — free to start"; subheadline now "Creativo is the free Creative Studio for everyone. Pick a template, drag and drop your ideas into place, and publish — no design experience needed..."; trust badges → "Free to use forever / No credit card required / Start trial when you want".
+- Pricing section already correctly stated "No payments yet — activate your 30-day free trial after signup" (manual) — no change needed.
+- Verified the backend trial route (`/api/trial/start`) already requires explicit POST activation (manual) — confirmed in worklog Task 6.
+- Ran `bun run lint` → 0 errors.
+- Agent Browser + VLM verification:
+  - Nav links: Features, Pricing, FAQ only (no Testimonials) ✅
+  - No stats bar (50K+/2M+/4.9/120+ gone) ✅
+  - No testimonials section ✅
+  - Hero badge: "Drag-and-drop templates — free to start" ✅
+  - FAQ Q1 answer: "Your trial doesn't start automatically — you stay on the Free plan... tap 'Start your free trial'" ✅
+  - FAQ new Q: "Is Creativo really free to use?" ✅
+  - FinalCta: "Pick a template, drag and drop... free, browser-based studio" ✅
+  - Footer: no Testimonials link ✅
+  - Console: 0 errors, 0 warnings ✅
+
+Stage Summary:
+- ✅ All fake social proof (stats bar + testimonials) removed from landing page; component files deleted.
+- ✅ Free trial confirmed manual (never auto-starts) — FAQ copy corrected to match actual behavior; backend already required explicit activation.
+- ✅ Hero + FinalCta copy reframed around the free, drag-and-drop-template positioning.
+- ✅ Pricing left unchanged (Free/Student/Pro/Team).
+- ✅ Lint clean; landing page verified via browser + VLM.

@@ -1,10 +1,8 @@
 import { SiteHeader } from "@/components/landing/site-header";
 import { HeroSection } from "@/components/landing/hero-section";
-import { StatsBar } from "@/components/landing/stats-bar";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { PricingSection } from "@/components/landing/pricing-section";
-import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { FaqSection } from "@/components/landing/faq-section";
 import { FinalCta } from "@/components/landing/final-cta";
 import { SiteFooter } from "@/components/landing/site-footer";
@@ -15,11 +13,9 @@ export default function Home() {
       <SiteHeader />
       <main className="flex-1">
         <HeroSection />
-        <StatsBar />
         <FeaturesSection />
         <HowItWorks />
         <PricingSection />
-        <TestimonialsSection />
         <FaqSection />
         <FinalCta />
       </main>
