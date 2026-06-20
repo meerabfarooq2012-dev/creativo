@@ -94,7 +94,7 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © 2024 Creativo. All rights reserved.
+            © {new Date().getFullYear()} Creativo. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link
