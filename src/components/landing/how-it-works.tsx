@@ -18,7 +18,7 @@ const STEPS = [
     step: "02",
     title: "Customize",
     description:
-      "Tweak colors, layers, and effects. Use AI suggestions and version history to refine your work until it's perfect.",
+      "Tweak colors, layers, and effects. Use version history and smart guides to refine your work until it's perfect.",
   },
   {
     icon: Share2,

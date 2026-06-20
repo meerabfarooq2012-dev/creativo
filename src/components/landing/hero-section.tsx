@@ -12,6 +12,7 @@ import {
   Layers,
   Type,
   CheckCircle2,
+  Cloud,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ export function HeroSection() {
             >
               <Sparkles className="size-3.5 text-primary" />
               <span className="text-gradient font-semibold">
-                New: AI Assistant in Pro
+                New: Version History in Pro
               </span>
               <span className="hidden sm:inline">— try it free today</span>
             </Badge>
@@ -234,11 +235,11 @@ function HeroShowcase() {
       >
         <div className="flex items-center gap-2 rounded-xl border border-border bg-card/90 px-3 py-2 shadow-xl backdrop-blur">
           <div className="flex size-7 items-center justify-center rounded-md bg-secondary text-white">
-            <Sparkles className="size-3.5" />
+            <Cloud className="size-3.5" />
           </div>
           <div className="text-xs">
-            <p className="font-semibold leading-none">AI Assistant</p>
-            <p className="text-muted-foreground">Suggestions on</p>
+            <p className="font-semibold leading-none">Cloud Sync</p>
+            <p className="text-muted-foreground">Auto-saved</p>
           </div>
         </div>
       </motion.div>

@@ -157,7 +157,7 @@ async function main() {
     }
 
     const notifs = [
-      { type: "system", title: "New feature: AI Assistant 🤖", message: "Try our new AI Assistant available on Pro plans." },
+      { type: "system", title: "New feature: Version History 🕑", message: "Version History is now available on Pro plans. Never lose your work again." },
       { type: "subscription", title: "Pro plan active", message: "Your Pro subscription is active. Enjoy 50 GB storage." },
       { type: "security", title: "New login detected", message: "A new login to your account was detected." },
       { type: "system", title: "Weekly summary ready", message: "Your weekly creative summary is ready to view." },
@@ -172,7 +172,7 @@ async function main() {
   // Announcements
   const announcementData = [
     { title: "Welcome to Creativo!", summary: "Get started with your creative journey.", content: "Welcome aboard! Creativo is your all-in-one creative studio. Explore our templates, create your first project, and start designing without limits.", type: "info", isPublished: true, isPinned: true },
-    { title: "New: AI Assistant is here", summary: "Supercharge your workflow with AI.", content: "We're thrilled to introduce the AI Assistant, available now on Pro and Team plans. Generate ideas, get suggestions, and speed up your creative process.", type: "release", isPublished: true },
+    { title: "New: Version History is here", summary: "Never lose your work again.", content: "We're thrilled to introduce Version History, available now on Pro and Team plans. Roll back to any previous version of your project, compare changes, and never lose your creative progress.", type: "release", isPublished: true },
     { title: "Scheduled maintenance", summary: "Brief downtime this Sunday 2-4 AM UTC.", content: "We'll be performing scheduled maintenance to improve performance. The platform may be briefly unavailable.", type: "maintenance", isPublished: true },
   ];
   const adminUser = await db.user.findUnique({ where: { email: "admin@creativo.app" } });

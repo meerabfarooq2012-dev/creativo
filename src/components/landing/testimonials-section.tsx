@@ -28,7 +28,7 @@ const TESTIMONIALS: Testimonial[] = [
     name: "Daniel Okafor",
     role: "Illustrator & Content Creator",
     quote:
-      "The illustration brushes feel natural and the AI suggestions actually understand my style. It's the first creative app that keeps up with me.",
+      "The illustration brushes feel natural and the layers system just makes sense. It's the first creative app that keeps up with me.",
     initials: "DO",
     accent: "from-fuchsia-500 to-violet-500",
   },

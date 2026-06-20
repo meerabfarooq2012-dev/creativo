@@ -12,6 +12,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
@@ -96,6 +97,9 @@ export function SiteHeader() {
                 <SheetTitle className="flex items-center">
                   <CreativoLogo size="sm" />
                 </SheetTitle>
+                <SheetDescription className="sr-only">
+                  Navigate to sections of the Creativo landing page.
+                </SheetDescription>
               </SheetHeader>
               <nav
                 aria-label="Mobile"

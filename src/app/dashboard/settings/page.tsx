@@ -666,7 +666,7 @@ function AccountTab() {
                 <div className="flex-1">
                   <p className="text-sm font-semibold">Start your {TRIAL_DURATION_DAYS}-day Pro trial</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Get 50 GB storage, premium templates, AI Assistant, and more — free for 30 days.
+                    Get 50 GB storage, premium templates, and more — free for 30 days.
                   </p>
                 </div>
                 <Button

@@ -43,5 +43,10 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|uploads|logo.svg|robots.txt).*)"],
+  // Exclude NextAuth API routes so the middleware (withAuth) never intercepts
+  // them — this prevents the session endpoint from returning HTML/redirects
+  // instead of JSON (fixes [next-auth][error][CLIENT_FETCH_ERROR]).
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|uploads|logo.svg|robots.txt|api/auth).*)",
+  ],
 };

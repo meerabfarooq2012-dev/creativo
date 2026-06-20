@@ -220,3 +220,39 @@ Stage Summary:
 - All required features implemented and verified: auth (login/signup/forgot/reset/verify), 6 roles w/ permission-based access, landing page (all sections), pricing (4 plans), user dashboard (overview/projects/templates/assets/favorites/notifications/support/settings), project management (CRUD + folders), storage system, notifications, settings (6 tabs), admin dashboard (overview + 8 sub-pages), user management, subscription management, free trial system, admin project management, asset management, support tickets, announcements, security center, 13-table DB schema, responsive design.
 - Demo credentials: admin@creativo.app / Admin@2024 (Super Admin) · creator@creativo.app / Demo@2024 (Pro) · student@creativo.app / Demo@2024 (Student) · free@creativo.app / Demo@2024 (Free) · mod@creativo.app / Demo@2024 (Moderator).
 - Ready for Phase 2 (Design Studio / Editing Studio / Animation Studio) when requested.
+
+---
+Task ID: 9 (Cleanup: remove AI + fix console errors)
+Agent: Main (Z.ai Code)
+Task: Per user request — remove all AI features/references (no AI work needed), do NOT integrate Supabase/Vercel (already using Prisma/SQLite), and fix two reported console errors: (1) [next-auth][error][CLIENT_FETCH_ERROR] "Unexpected token '<'... is not valid JSON", (2) hydration mismatch on Radix Sheet trigger aria-controls attribute.
+
+Work Log:
+- Searched codebase for all AI references (\bAI\b, AI Assistant, artificial intelligence).
+- Removed AI references in 8 locations:
+  - `src/components/landing/hero-section.tsx`: badge "New: AI Assistant in Pro" → "New: Version History in Pro"; floating chip "AI Assistant / Suggestions on" → "Cloud Sync / Auto-saved" (swapped Sparkles icon → Cloud icon, added Cloud import).
+  - `src/components/landing/how-it-works.tsx`: "Use AI suggestions and version history" → "Use version history and smart guides".
+  - `src/components/landing/testimonials-section.tsx`: "the AI suggestions actually understand my style" → "the layers system just makes sense".
+  - `src/components/dashboard/sidebar-content.tsx`: trial banner "premium templates & AI Assistant" → "premium templates".
+  - `src/lib/constants/plans.ts`: removed "AI Assistant" from Pro plan features array.
+  - `src/app/dashboard/settings/page.tsx`: trial text "premium templates, AI Assistant, and more" → "premium templates, and more".
+  - `scripts/seed.ts`: AI notification → Version History notification; AI announcement → Version History announcement.
+  - Patched existing DB rows (1 notification + 1 announcement + PRO plan features JSON) via scripts/remove-ai-refs.ts to remove AI content without full re-seed.
+- Fixed [next-auth][error][CLIENT_FETCH_ERROR]: root cause = `withAuth` middleware matcher was matching `/api/auth/*` routes, intermittently causing the session endpoint to return HTML instead of JSON. Fix: excluded `api/auth` from the middleware matcher (`src/middleware.ts`). This is the documented NextAuth best practice.
+- Fixed hydration mismatch (Radix Sheet `aria-controls` useId mismatch): was a cascade from the session fetch error — SessionProvider receiving HTML caused re-renders that shifted the Radix useId sequence. Resolved entirely by the middleware fix; verified clean on desktop + mobile, even after opening/closing the Sheet menu.
+- Fixed Next.js 16 `scroll-behavior: smooth` warning: added `data-scroll-behavior="smooth"` to `<html>` in `src/app/layout.tsx` (Next 16 recommended fix).
+- Fixed Radix "Missing Description for DialogContent" a11y warning: added sr-only `SheetDescription` to the landing `site-header.tsx` Sheet and the dashboard `top-bar.tsx` mobile Sheet.
+- Confirmed NO Supabase/Vercel integration present (platform uses Prisma + SQLite as documented in worklog Task 1-3).
+- Ran `bun run lint` — 0 errors.
+- Agent Browser verification (cookies cleared, fresh loads):
+  - Desktop `/`: 0 errors, 0 warnings, 0 hydration mismatches. Hero badge shows "New: Version History in Pro"; no "AI Assistant" anywhere.
+  - Mobile `/` (375x812): 0 errors, 0 warnings; opened + closed mobile Sheet menu → still 0 errors (the element that previously had the aria-controls mismatch is now clean).
+  - Login flow (admin@creativo.app): signed in → redirected to `/admin`; console completely clean (no CLIENT_FETCH_ERROR).
+
+Stage Summary:
+- ✅ All AI references removed from code + database + seed script.
+- ✅ [next-auth][error][CLIENT_FETCH_ERROR] FIXED (middleware matcher excludes /api/auth).
+- ✅ Hydration mismatch RESOLVED (cascade from the fetch error; verified clean on desktop + mobile + post-Sheet-interaction).
+- ✅ scroll-behavior warning silenced.
+- ✅ Radix missing-description a11y warning fixed on primary Sheets.
+- ✅ Lint clean; dev server running; login flow verified end-to-end with clean console.
+- No Supabase/Vercel integration (Prisma/SQLite foundation retained).

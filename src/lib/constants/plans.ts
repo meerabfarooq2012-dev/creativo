@@ -69,7 +69,6 @@ export const PLANS: PlanInfo[] = [
       "All Export Formats",
       "Version History",
       "Custom Branding",
-      "AI Assistant",
       "Advanced Collaboration",
     ],
     isPopular: true,

@@ -126,7 +126,7 @@ export function SidebarContent({
               Try Pro free
             </div>
             <p className="mb-3 text-xs text-muted-foreground">
-              Unlock 50 GB storage, premium templates & AI Assistant.
+              Unlock 50 GB storage and premium templates.
             </p>
             <Link
               href="/dashboard/settings"

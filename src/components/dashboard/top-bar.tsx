@@ -25,7 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./sidebar-content";
 import { initials } from "@/lib/dashboard/constants";
 
@@ -85,6 +85,9 @@ export function TopBar({ user, plan, storageUsedMb, storageLimitMb, unreadNotifi
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <SheetDescription className="sr-only">
+            Workspace navigation menu.
+          </SheetDescription>
           <SidebarContent
             plan={plan}
             storageUsedMb={storageUsedMb}
