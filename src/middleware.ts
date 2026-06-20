@@ -33,6 +33,7 @@ export default withAuth(
           path.startsWith("/pricing") ||
           path.startsWith("/privacy") ||
           path.startsWith("/terms") ||
+          path.startsWith("/security") ||
           path.startsWith("/api/auth")
         ) {
           return true;
