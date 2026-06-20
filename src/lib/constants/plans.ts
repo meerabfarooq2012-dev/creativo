@@ -1,4 +1,10 @@
 // Creativo - Plans & Pricing
+//
+// Positioning:
+// - Free        → build with basic drag-and-drop templates (the free core)
+// - Student     → half-professional: unlocks pro tools like layers at a student price
+// - Pro         → full professional toolset
+// - Team        → full professional + team collaboration
 
 export interface PlanInfo {
   id: string;
@@ -18,17 +24,17 @@ export const PLANS: PlanInfo[] = [
     id: "free",
     name: "FREE",
     displayName: "Free",
-    description: "Perfect for getting started with creative work",
+    description: "Build with basic drag-and-drop templates — free forever.",
     priceMonthly: 0,
     priceYearly: 0,
     storageLimitMb: 500,
     features: [
+      "Basic drag-and-drop editor",
+      "Basic templates",
       "5 Projects",
       "500 MB Storage",
-      "Basic Templates",
-      "Community Support",
       "PNG / JPG Export",
-      "Mobile App Access",
+      "Community Support",
     ],
     isPopular: false,
     cta: "Start Free",
@@ -37,17 +43,20 @@ export const PLANS: PlanInfo[] = [
     id: "student",
     name: "STUDENT",
     displayName: "Student",
-    description: "Discounted plan for students and learners",
+    description:
+      "Half-professional: pro tools like layers at a student price.",
     priceMonthly: 4,
     priceYearly: 40,
     storageLimitMb: 5000,
     features: [
+      "Everything in Free",
+      "Pro tools: layers & advanced editor",
+      "Premium templates",
       "Unlimited Projects",
       "5 GB Storage",
-      "Premium Templates",
-      "Priority Email Support",
       "SVG / PDF Export",
       "No Watermarks",
+      "Priority Email Support",
       "Valid .edu email required",
     ],
     isPopular: false,
@@ -57,15 +66,15 @@ export const PLANS: PlanInfo[] = [
     id: "pro",
     name: "PRO",
     displayName: "Pro",
-    description: "Advanced tools for professional creators",
+    description: "Full professional toolset for serious creators.",
     priceMonthly: 12,
     priceYearly: 120,
     storageLimitMb: 50000,
     features: [
-      "Unlimited Projects",
+      "Everything in Student",
+      "Full professional toolset",
+      "All premium templates",
       "50 GB Storage",
-      "All Premium Templates",
-      "Priority Support",
       "All Export Formats",
       "Version History",
       "Custom Branding",
@@ -78,7 +87,7 @@ export const PLANS: PlanInfo[] = [
     id: "team",
     name: "TEAM",
     displayName: "Team",
-    description: "Built for teams and growing studios",
+    description: "Full professional + collaboration for teams & studios.",
     priceMonthly: 29,
     priceYearly: 290,
     storageLimitMb: 500000,

@@ -330,3 +330,26 @@ Stage Summary:
 - ✅ Hero + FinalCta copy reframed around the free, drag-and-drop-template positioning.
 - ✅ Pricing left unchanged (Free/Student/Pro/Team).
 - ✅ Lint clean; landing page verified via browser + VLM.
+
+---
+Task ID: 12 (Plan positioning: Free=basic DnD, Student=half-pro, Pro=full-pro, Team=pro+collab)
+Agent: Main (Z.ai Code)
+Task: Per user — clarify the pricing plan positioning: Free = build with basic drag-and-drop templates; Student = half-professional (pro tools like layers at student price); Pro = full professional; Team = full professional + collaboration. Prices unchanged.
+
+Work Log:
+- Rewrote `src/lib/constants/plans.ts` descriptions + features to reflect the tiered positioning:
+  - **Free**: "Build with basic drag-and-drop templates — free forever." Features: Basic drag-and-drop editor, Basic templates, 5 Projects, 500 MB, PNG/JPG, Community Support.
+  - **Student**: "Half-professional: pro tools like layers at a student price." Features: Everything in Free, **Pro tools: layers & advanced editor**, Premium templates, Unlimited Projects, 5 GB, SVG/PDF, No Watermarks, Priority Email, .edu required.
+  - **Pro**: "Full professional toolset for serious creators." Features: Everything in Student, Full professional toolset, All premium templates, 50 GB, All Exports, Version History, Custom Branding, Advanced Collaboration.
+  - **Team**: "Full professional + collaboration for teams & studios." Features: Everything in Pro, 500 GB, 25 Members, Shared Library, Admin Console, Permissions, Audit Logs, Phone Support, SLA.
+  - Prices kept identical ($0 / $4 / $12 / $29 monthly).
+- Re-ran `ensureSeedData()` (via scripts/resync-plans.ts, then deleted) to upsert the updated plan rows into the DB so the Admin Subscriptions page reflects the same copy. The seed helper already upserts displayName/description/features/price/storageLimitMb.
+- Ran `bun run lint` → 0 errors.
+- Agent Browser verification (DOM-extracted, reliable):
+  - Landing `/` pricing section: all 4 cards render with the new descriptions + feature lists exactly as authored (Free→Student→Pro→Team, "Everything in Free/Student/Pro" nesting intact).
+  - Admin `/admin/subscriptions` Plans tab: shows Free/Student/Pro/Team from the re-synced DB rows.
+  - Console: 0 errors, 0 warnings.
+
+Stage Summary:
+- ✅ Plan positioning clarified: Free (basic DnD templates) → Student (half-pro: layers + pro tools) → Pro (full professional) → Team (full pro + collaboration). Progressive "Everything in…" nesting communicates the upgrade ladder.
+- ✅ Prices unchanged. DB Plan rows re-synced. Lint clean. Verified on landing + admin.
