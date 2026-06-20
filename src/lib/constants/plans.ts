@@ -47,7 +47,6 @@ export const PLANS: PlanInfo[] = [
       "500 MB Storage",
       "No Watermarks",
       "PNG / JPG Export",
-      "Community Support",
     ],
     isPopular: false,
     cta: "Start Free",
