@@ -45,6 +45,7 @@ export const PLANS: PlanInfo[] = [
       "Premium templates (preview only)",
       "Unlimited Projects",
       "500 MB Storage",
+      "No Watermarks",
       "PNG / JPG Export",
       "Community Support",
     ],
