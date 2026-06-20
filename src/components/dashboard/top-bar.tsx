@@ -28,6 +28,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./sidebar-content";
 import { initials } from "@/lib/dashboard/constants";
+import { useMounted } from "@/hooks/use-mounted";
 
 interface TopBarProps {
   user: {
@@ -46,6 +47,7 @@ export function TopBar({ user, plan, storageUsedMb, storageLimitMb, unreadNotifi
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const mounted = useMounted();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut: "/" to focus search
@@ -76,28 +78,34 @@ export function TopBar({ user, plan, storageUsedMb, storageLimitMb, unreadNotifi
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      {/* Mobile menu */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SheetDescription className="sr-only">
-            Workspace navigation menu.
-          </SheetDescription>
-          <SidebarContent
-            plan={plan}
-            storageUsedMb={storageUsedMb}
-            storageLimitMb={storageLimitMb}
-            unreadNotifications={unreadNotifications}
-            user={user}
-            onNavigate={() => setMobileOpen(false)}
-          />
-        </SheetContent>
-      </Sheet>
+      {/* Mobile menu (client-mounted to avoid Radix useId hydration mismatch) */}
+      {mounted ? (
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 p-0">
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Workspace navigation menu.
+            </SheetDescription>
+            <SidebarContent
+              plan={plan}
+              storageUsedMb={storageUsedMb}
+              storageLimitMb={storageLimitMb}
+              unreadNotifications={unreadNotifications}
+              user={user}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" disabled>
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
 
       {/* Search */}
       <form onSubmit={onSearchSubmit} className="relative flex-1 max-w-md">

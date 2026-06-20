@@ -353,3 +353,30 @@ Work Log:
 Stage Summary:
 - ✅ Plan positioning clarified: Free (basic DnD templates) → Student (half-pro: layers + pro tools) → Pro (full professional) → Team (full pro + collaboration). Progressive "Everything in…" nesting communicates the upgrade ladder.
 - ✅ Prices unchanged. DB Plan rows re-synced. Lint clean. Verified on landing + admin.
+
+---
+Task ID: 13 (Fix Radix Sheet useId hydration mismatch — bulletproof)
+Agent: Main (Z.ai Code)
+Task: Fix recurring hydration mismatch on the Radix Sheet trigger (`aria-controls` differs: server `radix-_R_iatmlb_` vs client `radix-_R_26atmlb_`) on the landing page SiteHeader mobile menu, and preventively on the dashboard TopBar + admin AdminShell which use the same pattern.
+
+Work Log:
+- Root cause: Radix Dialog/Sheet generates `aria-controls` IDs via React `useId()`. In Next.js 16 + Turbopack the server- and client-generated IDs can diverge, producing a hydration mismatch on the `<button>` trigger's `aria-controls` attribute.
+- Fix strategy: "mounted gate" — render the Radix Sheet only after client mount. Before mount (incl. SSR), render a visually identical disabled placeholder button. This means NO Radix-generated `useId` values appear in the server-rendered HTML, so there's nothing to mismatch.
+- Created `src/hooks/use-mounted.ts` using `useSyncExternalStore` (the React-recommended, lint-clean way to detect client mount):
+  - `getServerSnapshot` → `false` (used for SSR AND the first hydration render → matches)
+  - `getSnapshot` → `true` (after hydration → re-render with the Sheet)
+  - This avoids `setState` inside `useEffect` which the `react-hooks/set-state-in-effect` rule disallows.
+- Refactored landing mobile menu into a dedicated `src/components/landing/mobile-nav.tsx` (extracted from site-header) that gates the Sheet on `useMounted()`. `site-header.tsx` now imports `<MobileNav />`.
+- Applied the same gate to `src/components/dashboard/top-bar.tsx` (mobile sidebar Sheet) and `src/components/admin/admin-shell.tsx` (admin mobile sidebar Sheet) — both now render a placeholder button before mount and the real Sheet after.
+- Ran `bun run lint` → 0 errors (the `useSyncExternalStore` approach passes the `react-hooks/set-state-in-effect` rule).
+- Agent Browser verification (all fresh loads, cookies cleared):
+  - Landing mobile (375px): 0 errors, 0 hydration mismatches; mobile menu opens correctly (Features/Pricing/FAQ/Login/Start Free). ✅
+  - Landing desktop (1440px): 0 errors, 0 mismatches. ✅
+  - Dashboard mobile (creator@creativo.app): 0 errors, 0 mismatches. ✅
+  - Admin desktop (admin path): 0 errors, 0 mismatches. ✅
+
+Stage Summary:
+- ✅ Radix `aria-controls` / `useId` hydration mismatch FIXED on all three Sheet surfaces (landing, dashboard, admin) via the mounted-gate pattern.
+- ✅ `useMounted` hook (`useSyncExternalStore`) is lint-clean (no `setState`-in-effect violation).
+- ✅ No layout shift — placeholder button is visually identical to the real trigger.
+- ✅ Mobile menu, dashboard sidebar, and admin sidebar all verified functional after the fix.

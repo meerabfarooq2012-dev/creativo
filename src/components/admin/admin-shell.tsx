@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreativoLogo } from "@/components/shared/creativo-logo";
 import { RoleBadge } from "@/components/admin/badges";
+import { useMounted } from "@/hooks/use-mounted";
 import { signOut } from "next-auth/react";
 
 interface AdminShellUser {
@@ -174,6 +175,7 @@ function UserMenu({ user }: { user: AdminShellUser }) {
 export function AdminShell({ user, children }: { user: AdminShellUser; children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mounted = useMounted();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -181,25 +183,31 @@ export function AdminShell({ user, children }: { user: AdminShellUser; children:
       <header className="sticky top-0 z-40 border-b border-border bg-sidebar/95 backdrop-blur supports-[backdrop-filter]:bg-sidebar/80">
         <div className="flex h-14 items-center gap-3 px-4">
           <div className="md:hidden">
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Open menu">
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0 bg-sidebar text-sidebar-foreground [&>button]:hidden">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Admin menu</SheetTitle>
-                  <SheetDescription>Navigate the admin dashboard</SheetDescription>
-                </SheetHeader>
-                <div className="flex h-full flex-col">
-                  <BrandHeader />
-                  <div className="flex-1 overflow-y-auto">
-                    <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            {mounted ? (
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Open menu">
+                    <Menu className="size-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-72 p-0 bg-sidebar text-sidebar-foreground [&>button]:hidden">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Admin menu</SheetTitle>
+                    <SheetDescription>Navigate the admin dashboard</SheetDescription>
+                  </SheetHeader>
+                  <div className="flex h-full flex-col">
+                    <BrandHeader />
+                    <div className="flex-1 overflow-y-auto">
+                      <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <Button variant="ghost" size="icon" aria-label="Open menu" disabled>
+                <Menu className="size-5" />
+              </Button>
+            )}
           </div>
 
           <div className="hidden md:flex">
