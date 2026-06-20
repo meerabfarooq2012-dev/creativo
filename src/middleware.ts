@@ -8,6 +8,10 @@ import { getToken } from "next-auth/jwt";
  * We avoid next-auth's withAuth wrapper because its built-in redirect logic
  * can cause redirect loops in proxied/preview environments where cookie
  * domains differ. Instead we read the JWT ourselves and redirect explicitly.
+ *
+ * IMPORTANT for proxied/preview environments: we build redirect URLs from
+ * req.nextUrl (which preserves the forwarded host) rather than req.url
+ * (which can resolve to the internal localhost host and break cookies).
  */
 
 const PUBLIC_PREFIXES = [
@@ -35,6 +39,14 @@ function isPublic(path: string): boolean {
   return PUBLIC_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
 }
 
+/** Build a redirect response that preserves the forwarded host + protocol. */
+function redirectTo(req: NextRequest, pathname: string, search?: string) {
+  const url = req.nextUrl.clone();
+  url.pathname = pathname;
+  url.search = search ?? "";
+  return NextResponse.redirect(url);
+}
+
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
@@ -51,9 +63,9 @@ export async function middleware(req: NextRequest) {
 
   // Not authenticated → redirect to /login with callbackUrl
   if (!token) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", path + req.nextUrl.search);
-    return NextResponse.redirect(loginUrl);
+    const callback = path + req.nextUrl.search;
+    const search = `callbackUrl=${encodeURIComponent(callback)}`;
+    return redirectTo(req, "/login", search);
   }
 
   const role = (token.role as string | undefined) ?? "FREE_USER";
@@ -61,16 +73,14 @@ export async function middleware(req: NextRequest) {
   // Admin area: only ADMIN + SUPER_ADMIN
   if (path.startsWith("/admin")) {
     if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return redirectTo(req, "/dashboard");
     }
   }
 
   // Banned/suspended users can't access app routes (only login/logout)
   const status = (token.status as string | undefined) ?? "active";
   if ((status === "banned" || status === "suspended") && !path.startsWith("/api/auth")) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("error", "AccountSuspended");
-    return NextResponse.redirect(loginUrl);
+    return redirectTo(req, "/login", "error=AccountSuspended");
   }
 
   return NextResponse.next();

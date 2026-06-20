@@ -532,3 +532,27 @@ Stage Summary:
 - ✅ NextAuth cookie config added (sameSite lax, path /, no domain pinning) → session cookie now persists through the Caddy preview proxy.
 - ✅ Full login flow verified in browser: login → session cookie set → protected page accessible → no loops.
 - ✅ User must clear browser cookies for the preview domain (or use incognito tab) to drop the stale broken session.
+
+---
+Task ID: 19 (Fix preview-iframe redirect loop — host preservation + env)
+Agent: Main (Z.ai Code)
+Task: "preview-chat-...space-z.ai redirected you too many times" — redirect loop happening inside the preview chat iframe.
+
+Work Log:
+- Root cause: Two issues compounding through the Caddy preview proxy:
+  1. `NEXTAUTH_URL=http://localhost:3000` was hardcoded in .env. NextAuth used this to build cookie/callback URLs with the internal host instead of the preview domain → cookie domain mismatch → session never recognized → loop.
+  2. Middleware built redirect URLs via `new URL("/login", req.url)` where `req.url` resolved to `localhost:3000` (internal), not the preview host → browser navigated to wrong host → loop.
+- Fix 1: Removed `NEXTAUTH_URL` from `.env` (kept DATABASE_URL + NEXTAUTH_SECRET). NextAuth now derives the URL from request headers (X-Forwarded-Host set by Caddy) so cookies are set for the correct domain.
+- Fix 2: Rewrote middleware redirects to use `req.nextUrl.clone()` (preserves the forwarded host) instead of `new URL(path, req.url)` (which used internal host). All redirects now keep the preview domain.
+- Fix 3 (from Task 18): Login page uses `window.location.href` (full page nav) + 200ms delay before reading session, ensuring the cookie is firmly established before the protected route's middleware runs.
+- Verified end-to-end (curl + browser):
+  - `/` → 200, `/login` → 200
+  - `/dashboard` logged out → 307 → /login?callbackUrl=/dashboard
+  - Login as admin → session cookie set → `/admin` → 200 (accessible)
+  - Session shows SUPER_ADMIN user
+- Note: dev server process needs to stay running; restarted via `nohup bun run dev`.
+
+Stage Summary:
+- ✅ Redirect loop FIXED for preview iframe: NEXTAUTH_URL removed (dynamic host detection) + middleware preserves forwarded host via req.nextUrl.clone().
+- ✅ Login flow verified: login → cookie set → protected route accessible, no loops.
+- ✅ Works through the Caddy proxy with forwarded Host/X-Forwarded-Host headers.
