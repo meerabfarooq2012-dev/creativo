@@ -53,7 +53,7 @@ function DefaultShowcase() {
         transition={{ duration: 0.5 }}
         className="relative z-10"
       >
-        <CreativoLogo size="lg" className="[&_span]:text-white" />
+        <CreativoLogo size="lg" showTagline />
       </motion.div>
 
       <div className="relative z-10 max-w-md">

@@ -63,7 +63,7 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <CreativoLogo size="md" />
+            <CreativoLogo size="md" showTagline />
             <p className="max-w-xs text-sm text-muted-foreground">
               The modern Creative Studio for designers, illustrators, and
               professionals. Create without limits.

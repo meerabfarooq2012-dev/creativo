@@ -256,3 +256,41 @@ Stage Summary:
 - ✅ Radix missing-description a11y warning fixed on primary Sheets.
 - ✅ Lint clean; dev server running; login flow verified end-to-end with clean console.
 - No Supabase/Vercel integration (Prisma/SQLite foundation retained).
+
+---
+Task ID: 10 (New Brand Logo)
+Agent: Main (Z.ai Code)
+Task: User uploaded a brand logo image (ChatGPT Image Jun 18, 2026). Recreate the Creativo logo from the brand sheet and integrate it across the entire app.
+
+Work Log:
+- Analyzed the uploaded brand sheet image with VLM (z-ai vision). Extracted full brand spec:
+  - Icon: stylized "C" with a play-button triangle in its negative space + pixelated squares breaking off the left edge, purple→cyan gradient.
+  - Wordmark: "Creativo" (bold sans-serif, gradient fill).
+  - Tagline: "CREATE WITHOUT LIMITS" (uppercase, tracked, multi-color: CREATE purple / WITHOUT light-purple / LIMITS cyan).
+  - Services: DESIGN, EDIT, VIDEO, ANIMATION.
+  - Colors: #7C3AED, #8B5CF6, #3B82F6, #22D3EE, #0F172A, #1E293B, #FFFFFF (all already in the project's design system).
+- Created `public/logo.svg` (favicon): 48×48 SVG — rounded dark-navy tile (#0F172A) containing the C-arc (stroke gradient purple→blue→cyan), play triangle in the opening, and 4 pixel squares breaking off the left edge in the 4 brand colors.
+- Rewrote `src/components/shared/creativo-logo.tsx`:
+  - Exported new `CreativoLogoMark` (the standalone icon SVG with `<linearGradient>` purple→blue→cyan, C-arc, play triangle, 4 pixel squares).
+  - `CreativoLogo` now renders the mark + gradient wordmark ("Creativo" via `text-gradient`) + optional tagline (`showTagline` prop → "CREATE WITHOUT LIMITS" in the 3 brand colors). Kept `size`/`showText` API backward-compatible; added `boxed` option.
+- Updated brand placements:
+  - Landing header (`site-header.tsx`): `<CreativoLogo size="md" />` (icon + gradient wordmark).
+  - Landing footer (`site-footer.tsx`): `<CreativoLogo size="md" showTagline />` (full brand lockup with tagline).
+  - Auth layout (`auth-layout.tsx`): `<CreativoLogo size="lg" showTagline />` (removed old `[&_span]:text-white` override so the gradient wordmark shows).
+  - Login/Signup/Forgot/Reset/Verify pages: inherit the new lg logo automatically.
+  - Dashboard + Admin sidebars (sm): inherit the new icon automatically.
+- Ran `bun run lint` → 0 errors.
+- Agent Browser verification (VLM-confirmed):
+  - Landing header: "stylized letter C that incorporates a play button triangle and small square elements... purple-to-cyan gradient... wordmark 'Creativo'... matching purple-to-cyan gradient." ✅
+  - Footer: "Creativo C-icon, 'Creativo' wordmark, and tagline 'CREATE WITHOUT LIMITS' below it" ✅
+  - Login brand panel: "C-icon logo (play button + pixel squares), 'Creativo' gradient wordmark, 'CREATE WITHOUT LIMITS' tagline (cyan-toned)" ✅
+  - Admin sidebar: "stylized C icon with a play button triangle and small squares, purple-to-cyan gradient, next to 'Creativo' + 'Admin' badge" ✅
+  - Favicon: serves `/logo.svg` (HTTP 200, image/svg+xml, 878 bytes) ✅
+  - Console: 0 errors, 0 warnings across all checked routes ✅
+
+Stage Summary:
+- ✅ New Creativo brand logo (C + play button + pixelated squares, purple→cyan gradient) recreated as inline SVG and favicon.
+- ✅ Gradient "Creativo" wordmark + optional "CREATE WITHOUT LIMITS" tagline integrated into the logo component.
+- ✅ Logo verified rendering correctly (via VLM) on: landing header, landing footer, login brand panel, admin sidebar. Favicon verified.
+- ✅ Brand colors exactly match the uploaded sheet and the existing design system (#7C3AED → #22D3EE).
+- ✅ Lint clean; no console errors; backward-compatible component API.
