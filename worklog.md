@@ -451,3 +451,31 @@ Stage Summary:
 - ✅ SEO significantly improved: rich metadata, JSON-LD structured data, sitemap.xml, robots.txt, canonical URLs, 15 target keywords, OG/Twitter cards.
 - ✅ All 4 legal pages indexable via sitemap; dashboard/admin/api excluded from indexing.
 - ✅ Lint clean; verified end-to-end in browser.
+
+---
+Task ID: 16 (Plan tiering: Free=DnD only, Student=3 pro tools, Pro=all, Team=all+collab)
+Agent: Main (Z.ai Code)
+Task: Per user — clarify plan tiers: Free = drag-and-drop only (no layers, free + premium-preview templates); Student = pick 3 professional tools from {design, illustration, photo editing, video editing, animation} + cloud storage; Pro = all professional tools; Team = all + collaboration.
+
+Work Log:
+- Rewrote `src/lib/constants/plans.ts`:
+  - **Free**: "Drag-and-drop templates — free forever, no layers." Features: Drag-and-drop editor, Free templates, Premium templates (preview only), 5 Projects, 500 MB, PNG/JPG, Community Support. (Removed "layer-based editor" from Free.)
+  - **Student**: "Pick 3 professional tools + cloud storage at a student price." Features: Everything in Free, Choose any 3 professional tools (Design · Illustration · Photo Editing · Video Editing · Animation), Layer-based editor (for chosen tools), Premium templates (full access), 5 GB Cloud Storage, Unlimited Projects, SVG/PDF, No Watermarks, Priority Email, .edu required.
+  - **Pro**: "All professional tools unlocked for serious creators." Features: Everything in Student, All 5 professional tools unlocked, Full layer-based editor, All premium templates, 50 GB, All Exports, Version History, Custom Branding, Advanced Collaboration.
+  - **Team**: "All professional tools + collaboration." Features: Everything in Pro, 500 GB, 25 Members, Shared Library, Admin Console, Permissions, Audit Logs, Phone Support, SLA.
+  - Exported `PROFESSIONAL_TOOLS` const array.
+- Updated hero subheadline to reflect the progression: "Start fast with drag-and-drop templates, then unlock layers, animation, photo & video editing as you grow..."
+- Re-synced DB Plan rows via `ensureSeedData()`.
+- Ran `bun run lint` → 0 errors.
+- Agent Browser verification (DOM-extracted):
+  - Free: "Drag-and-drop templates — free forever, no layers." → Drag-and-drop editor, Free templates, Premium templates (preview only)... ✅ (no layers in Free)
+  - Student: "Pick 3 professional tools + cloud storage at a student price." → Choose any 3 professional tools: Design · Illustration · Photo Editing · Video Editing · Animation, Layer-based editor (for chosen tools)... ✅
+  - Pro: "All professional tools unlocked" → All 5 professional tools unlocked, Full layer-based editor... ✅
+  - Team: "All professional tools + collaboration" ✅
+  - 0 console errors.
+
+Stage Summary:
+- ✅ Free plan = drag-and-drop only (no layers), free templates + premium preview.
+- ✅ Student plan = choose 3 of 5 professional tools + cloud storage.
+- ✅ Pro = all 5 professional tools + full layer editor.
+- ✅ Team = all + collaboration. DB synced. Lint clean. Verified.

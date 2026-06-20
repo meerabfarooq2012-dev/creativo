@@ -78,9 +78,9 @@ export function HeroSection() {
             </h1>
 
             <p className="mx-auto max-w-xl text-base text-muted-foreground sm:text-lg lg:mx-0">
-              Creativo is the free creative studio for everyone. Design with
-              layers, animate, edit photos and videos, or start from a
-              drag-and-drop template — a full professional toolset that works
+              Creativo is the free creative studio for everyone. Start fast with
+              drag-and-drop templates, then unlock layers, animation, photo &amp;
+              video editing as you grow — a full professional toolset that works
               right in your browser.
             </p>
 

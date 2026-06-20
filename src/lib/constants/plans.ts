@@ -1,10 +1,11 @@
 // Creativo - Plans & Pricing
 //
 // Positioning:
-// - Free        → full editor with layers + drag-and-drop templates (free core)
-// - Student     → half-professional: pro tools at a student price
-// - Pro         → full professional toolset
-// - Team        → full professional + team collaboration
+// - Free        → drag-and-drop templates only (free + premium templates), no layers
+// - Student     → pick 3 professional tools (from design, illustration, photo editing,
+//                 video editing, animation) + cloud storage
+// - Pro         → all professional tools unlocked
+// - Team        → all professional tools + team collaboration
 
 export interface PlanInfo {
   id: string;
@@ -19,19 +20,27 @@ export interface PlanInfo {
   cta: string;
 }
 
+export const PROFESSIONAL_TOOLS = [
+  "Design",
+  "Illustration",
+  "Photo Editing",
+  "Video Editing",
+  "Animation",
+] as const;
+
 export const PLANS: PlanInfo[] = [
   {
     id: "free",
     name: "FREE",
     displayName: "Free",
-    description: "Layer-based editor + drag-and-drop templates — free forever.",
+    description: "Drag-and-drop templates — free forever, no layers.",
     priceMonthly: 0,
     priceYearly: 0,
     storageLimitMb: 500,
     features: [
-      "Layer-based design editor",
-      "Drag-and-drop templates",
-      "Basic illustration & editing tools",
+      "Drag-and-drop editor",
+      "Free templates",
+      "Premium templates (preview only)",
       "5 Projects",
       "500 MB Storage",
       "PNG / JPG Export",
@@ -45,16 +54,19 @@ export const PLANS: PlanInfo[] = [
     name: "STUDENT",
     displayName: "Student",
     description:
-      "Half-professional: pro tools like layers at a student price.",
+      "Pick 3 professional tools + cloud storage at a student price.",
     priceMonthly: 4,
     priceYearly: 40,
     storageLimitMb: 5000,
     features: [
       "Everything in Free",
-      "Pro tools: layers & advanced editor",
-      "Premium templates",
+      "Choose any 3 professional tools:",
+      "  Design · Illustration · Photo Editing",
+      "  Video Editing · Animation",
+      "Layer-based editor (for chosen tools)",
+      "Premium templates (full access)",
+      "5 GB Cloud Storage",
       "Unlimited Projects",
-      "5 GB Storage",
       "SVG / PDF Export",
       "No Watermarks",
       "Priority Email Support",
@@ -67,15 +79,18 @@ export const PLANS: PlanInfo[] = [
     id: "pro",
     name: "PRO",
     displayName: "Pro",
-    description: "Full professional toolset for serious creators.",
+    description: "All professional tools unlocked for serious creators.",
     priceMonthly: 12,
     priceYearly: 120,
     storageLimitMb: 50000,
     features: [
       "Everything in Student",
-      "Full professional toolset",
+      "All 5 professional tools unlocked:",
+      "  Design · Illustration · Photo Editing",
+      "  Video Editing · Animation",
+      "Full layer-based editor",
       "All premium templates",
-      "50 GB Storage",
+      "50 GB Cloud Storage",
       "All Export Formats",
       "Version History",
       "Custom Branding",
@@ -88,13 +103,14 @@ export const PLANS: PlanInfo[] = [
     id: "team",
     name: "TEAM",
     displayName: "Team",
-    description: "Full professional + collaboration for teams & studios.",
+    description:
+      "All professional tools + collaboration for teams & studios.",
     priceMonthly: 29,
     priceYearly: 290,
     storageLimitMb: 500000,
     features: [
       "Everything in Pro",
-      "500 GB Storage",
+      "500 GB Cloud Storage",
       "Up to 25 Team Members",
       "Shared Asset Library",
       "Admin Console",
