@@ -380,3 +380,32 @@ Stage Summary:
 - ✅ `useMounted` hook (`useSyncExternalStore`) is lint-clean (no `setState`-in-effect violation).
 - ✅ No layout shift — placeholder button is visually identical to the real trigger.
 - ✅ Mobile menu, dashboard sidebar, and admin sidebar all verified functional after the fix.
+
+---
+Task ID: 14 (Privacy Policy + Terms of Service legal pages)
+Agent: Main (Z.ai Code)
+Task: Create the Privacy Policy page with the exact content provided by the user, plus a Terms of Service page (referenced in signup form + footer). Wire up footer links.
+
+Work Log:
+- Created `src/components/legal/legal-layout.tsx` — reusable server-component layout for legal pages: sticky SiteHeader, max-w-3xl article, numbered section headers (gradient badge + title), paragraph + bullet-list rendering, closing "Questions?" contact card with privacy@creativo.app mailto, sticky SiteFooter. Dark-themed, responsive, accessible (aria-labelledby on sections).
+- Created `src/app/privacy/page.tsx` — Privacy Policy page with exact content provided:
+  - Title "Privacy Policy", "Last Updated: June 2026"
+  - Intro: "Welcome to Creativo... Your privacy is important to us..."
+  - 11 numbered sections: (1) Information We Collect [Account/Project/Technical info as bullet groups], (2) How We Use Your Information [8 bullets], (3) User Content Ownership, (4) Data Storage, (5) Sharing Information [3 bullets], (6) Account Security [3 bullets], (7) Cookies [4 bullets], (8) Children's Privacy, (9) Data Retention [4 bullets + deletion note], (10) Account Deletion, (11) Changes to This Policy.
+  - Metadata: title "Privacy Policy — Creativo" + description.
+- Created `src/app/terms/page.tsx` — Terms of Service page (referenced by signup form) with 10 sections: Acceptance of Terms, Your Account, Acceptable Use, User Content, Plans & Trials (manual trial + cancel anytime), Intellectual Property, Termination, Disclaimer, Limitation of Liability, Changes to These Terms.
+- Updated `src/middleware.ts` authorized() to make `/privacy` and `/terms` public routes (so unauthenticated visitors can read them — they were previously redirected to /login).
+- Updated `src/components/landing/site-footer.tsx`: Legal column links (Privacy→/privacy, Terms→/terms, Security→/privacy, Cookies→/privacy, Licenses→/terms) and bottom-bar links (Privacy→/privacy, Terms→/terms) — were all `#` before.
+- Ran `bun run lint` → 0 errors.
+- Agent Browser verification:
+  - `/privacy`: title "Privacy Policy — Creativo", "Last Updated: June 2026", all 11 numbered sections render (1 Information We Collect → 11 Changes to This Policy), bullet lists present (e.g. Account Security: Protecting account credentials / Maintaining password confidentiality / Reporting unauthorized access), contact card with privacy@creativo.app mailto link. Mobile (375px) responsive, 0 errors. ✅
+  - `/terms`: title "Terms of Service — Creativo", sections render (Acceptance of Terms, Your Account, Acceptable Use...). ✅
+  - Footer links verified via DOM: Privacy→/privacy, Terms→/terms (both Legal column + bottom bar). ✅
+  - Signup form already linked to /privacy and /terms (pre-existing) — now functional. ✅
+
+Stage Summary:
+- ✅ Privacy Policy page live at `/privacy` with exact user-provided content (11 sections, June 2026).
+- ✅ Terms of Service page live at `/terms` (10 sections).
+- ✅ Both pages public (no login required), linked from footer + signup form.
+- ✅ Reusable LegalLayout component ready for future legal pages.
+- ✅ Lint clean; mobile responsive; 0 console errors.

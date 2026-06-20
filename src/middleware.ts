@@ -31,6 +31,8 @@ export default withAuth(
           path.startsWith("/reset-password") ||
           path.startsWith("/verify") ||
           path.startsWith("/pricing") ||
+          path.startsWith("/privacy") ||
+          path.startsWith("/terms") ||
           path.startsWith("/api/auth")
         ) {
           return true;

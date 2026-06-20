@@ -36,11 +36,11 @@ const FOOTER_COLUMNS = [
   {
     title: "Legal",
     links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-      { label: "Security", href: "#" },
-      { label: "Cookies", href: "#" },
-      { label: "Licenses", href: "#" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Security", href: "/privacy" },
+      { label: "Cookies", href: "/privacy" },
+      { label: "Licenses", href: "/terms" },
     ],
   },
 ];
@@ -109,13 +109,13 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="#"
+              href="/privacy"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               Privacy
             </Link>
             <Link
-              href="#"
+              href="/terms"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               Terms
