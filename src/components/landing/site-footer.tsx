@@ -24,23 +24,12 @@ const FOOTER_COLUMNS = [
     ],
   },
   {
-    title: "Resources",
-    links: [
-      { label: "Documentation", href: "#" },
-      { label: "Tutorials", href: "#" },
-      { label: "Templates", href: "#" },
-      { label: "Community", href: "#" },
-      { label: "Changelog", href: "#" },
-    ],
-  },
-  {
     title: "Legal",
     links: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
       { label: "Security", href: "/privacy" },
       { label: "Cookies", href: "/privacy" },
-      { label: "Licenses", href: "/terms" },
     ],
   },
 ];
@@ -59,7 +48,7 @@ export function SiteFooter() {
       className="mt-auto border-t border-border bg-card/40"
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-        <div className="grid gap-10 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
+        <div className="grid gap-10 lg:grid-cols-[1.5fr_repeat(3,1fr)]">
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <CreativoLogo size="md" showTagline />
