@@ -12,97 +12,201 @@ export default function TermsPage() {
     <LegalLayout
       title="Terms of Service"
       lastUpdated="June 2026"
-      intro="Welcome to Creativo. By creating an account or using our platform, you agree to these Terms of Service. Please read them carefully."
+      intro="Welcome to Creativo. By accessing or using Creativo, you agree to these Terms of Service. If you do not agree with these terms, please do not use our platform."
       sections={[
         {
           id: "acceptance-of-terms",
           title: "Acceptance of Terms",
           items: [
-            "By accessing or using Creativo, you agree to be bound by these Terms and our Privacy Policy. If you do not agree, you may not use the platform.",
+            "By creating an account or using Creativo, you agree to comply with these Terms of Service, our Privacy Policy, and all applicable laws and regulations.",
           ],
         },
         {
-          id: "your-account",
-          title: "Your Account",
+          id: "about-creativo",
+          title: "About Creativo",
           items: [
-            "You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account.",
-            [
-              "You must provide accurate information at registration.",
-              "You must be legally able to use online services in your region.",
-              "You must not share your account or allow unauthorized access.",
-              "You must notify us immediately of any unauthorized use.",
-            ],
+            "Creativo is an online creative platform that provides design, illustration, editing, animation, and project management tools for creators, students, freelancers, and professionals.",
           ],
         },
         {
-          id: "acceptable-use",
-          title: "Acceptable Use",
+          id: "user-accounts",
+          title: "User Accounts",
           items: [
-            "You agree not to use Creativo to:",
+            "To access certain features, you may be required to create an account.",
+            "You agree to:",
             [
-              "Violate any law or regulation",
-              "Infringe the intellectual property rights of others",
-              "Upload malicious code or harmful content",
-              "Harass, abuse, or harm other users",
-              "Attempt to disrupt or compromise platform security",
-              "Use the platform to send spam or unauthorized communications",
+              "Provide accurate information",
+              "Keep your account secure",
+              "Maintain password confidentiality",
+              "Notify us of unauthorized account access",
             ],
+            "You are responsible for all activity under your account.",
           ],
         },
         {
           id: "user-content",
           title: "User Content",
           items: [
-            "You retain ownership of all content you create on Creativo. By uploading or creating content, you grant us a limited license to host, store, and display it as needed to provide the service.",
-            "You are solely responsible for your content and must ensure you have the rights to use any assets you upload.",
+            "Users retain ownership of all original content they create and upload to Creativo, including:",
+            [
+              "Designs",
+              "Illustrations",
+              "Images",
+              "Videos",
+              "Animations",
+              "Projects",
+            ],
+            "Creativo does not claim ownership of user-created content.",
+            "However, you grant Creativo permission to store, process, and display your content as necessary to provide the service.",
           ],
         },
         {
-          id: "plans-and-trials",
-          title: "Plans, Trials, and Billing",
+          id: "acceptable-use",
+          title: "Acceptable Use",
           items: [
-            "Creativo offers Free, Student, Pro, and Team plans. Paid plans are optional — the Free plan is available at no cost.",
+            "Users may not:",
             [
-              "Free trials are optional and must be started manually by the user.",
-              "Trials provide 30 days of Pro features at no charge.",
-              "When billing launches, paid plans will renew automatically until canceled.",
-              "You can cancel a subscription or trial at any time from your account settings.",
+              "Upload illegal content",
+              "Violate intellectual property rights",
+              "Spread malware or harmful code",
+              "Attempt unauthorized access to systems",
+              "Abuse platform resources",
+              "Harass or harm other users",
+              "Use Creativo for fraudulent activities",
             ],
+            "Violation of these rules may result in account suspension or termination.",
           ],
         },
         {
           id: "intellectual-property",
           title: "Intellectual Property",
           items: [
-            "Creativo, its logo, templates, and platform code are the property of Creativo and protected by intellectual property laws. You may not copy, modify, or redistribute them without permission.",
+            "All Creativo branding, software, logos, designs, trademarks, and platform content belong to Creativo unless otherwise stated.",
+            "Users may not copy, distribute, reverse engineer, or reproduce platform software without permission.",
           ],
         },
         {
-          id: "termination",
-          title: "Termination",
+          id: "subscriptions",
+          title: "Subscriptions",
           items: [
-            "You may delete your account at any time. We may suspend or terminate accounts that violate these Terms or pose a risk to the platform or its users.",
+            "Creativo may offer:",
+            [
+              "Free Plan",
+              "Student Plan",
+              "Pro Plan",
+              "Team Plan",
+            ],
+            "Subscription benefits and pricing may change over time.",
+            "Users will be informed of significant pricing changes before renewal where applicable.",
           ],
         },
         {
-          id: "disclaimer",
-          title: "Disclaimer",
+          id: "free-trial",
+          title: "Free Trial",
           items: [
-            "Creativo is provided \u201Cas is\u201D without warranties of any kind. We do not guarantee uninterrupted or error-free service.",
+            "Creativo may provide a free trial period.",
+            "Free trials:",
+            [
+              "Must be activated manually by the user",
+              "Are limited to one trial per eligible account",
+              "May be modified or discontinued at our discretion",
+            ],
+          ],
+        },
+        {
+          id: "payments-and-refunds",
+          title: "Payments and Refunds",
+          items: [
+            "Paid subscriptions provide access to premium features.",
+            "Unless required by law:",
+            [
+              "Subscription fees are non-refundable",
+              "Users may cancel future renewals at any time",
+              "Access remains active until the subscription period ends",
+            ],
+          ],
+        },
+        {
+          id: "storage-and-data",
+          title: "Storage and Data",
+          items: [
+            "Creativo provides cloud storage for projects and assets.",
+            "Users are responsible for maintaining backups of important content.",
+            "We may apply storage limits according to subscription plans.",
+          ],
+        },
+        {
+          id: "account-suspension",
+          title: "Account Suspension",
+          items: [
+            "Creativo reserves the right to:",
+            [
+              "Suspend accounts",
+              "Restrict access",
+              "Remove content",
+              "Terminate accounts",
+            ],
+            "if users violate these Terms or engage in harmful activities.",
+          ],
+        },
+        {
+          id: "service-availability",
+          title: "Service Availability",
+          items: [
+            "We aim to provide reliable services, but we do not guarantee uninterrupted access.",
+            "Temporary interruptions may occur due to:",
+            [
+              "Maintenance",
+              "Updates",
+              "Technical issues",
+              "Security measures",
+            ],
           ],
         },
         {
           id: "limitation-of-liability",
           title: "Limitation of Liability",
           items: [
-            "To the maximum extent permitted by law, Creativo shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.",
+            "To the maximum extent permitted by law, Creativo shall not be liable for:",
+            [
+              "Data loss",
+              "Business interruption",
+              "Indirect damages",
+              "Lost profits",
+              "Third-party actions",
+            ],
+            "Users use the platform at their own risk.",
           ],
         },
         {
-          id: "changes-to-terms",
-          title: "Changes to These Terms",
+          id: "privacy",
+          title: "Privacy",
           items: [
-            "We may update these Terms from time to time. Users will be notified of significant changes through the platform. Continued use after changes take effect constitutes acceptance.",
+            "Use of Creativo is also governed by our Privacy Policy.",
+            "By using the platform, you acknowledge that you have read and understood our Privacy Policy.",
+          ],
+        },
+        {
+          id: "modifications",
+          title: "Modifications",
+          items: [
+            "Creativo may update these Terms of Service from time to time.",
+            "Continued use of the platform after updates means acceptance of the revised Terms.",
+          ],
+        },
+        {
+          id: "termination",
+          title: "Termination",
+          items: [
+            "Users may stop using Creativo at any time.",
+            "Creativo may terminate accounts that violate these Terms or create security risks for the platform or community.",
+          ],
+        },
+        {
+          id: "governing-law",
+          title: "Governing Law",
+          items: [
+            "These Terms shall be governed by applicable laws and regulations in the jurisdiction where Creativo operates.",
           ],
         },
       ]}
