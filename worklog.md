@@ -479,3 +479,32 @@ Stage Summary:
 - ✅ Student plan = choose 3 of 5 professional tools + cloud storage.
 - ✅ Pro = all 5 professional tools + full layer editor.
 - ✅ Team = all + collaboration. DB synced. Lint clean. Verified.
+
+---
+Task ID: 17 (Fix redirect loop in preview/proxy environment)
+Agent: Main (Z.ai Code)
+Task: Fix "redirected you too many times" error occurring on the preview domain (preview-chat-...space-z.ai).
+
+Work Log:
+- Root cause: The previous middleware used next-auth's `withAuth` wrapper. In proxied/preview environments where the cookie domain differs from NEXTAUTH_URL (localhost:3000), withAuth's built-in redirect logic can loop: it redirects unauthenticated users to the signIn page, but the cookie state causes repeated re-evaluation and re-redirects.
+- Rewrote `src/middleware.ts` as a plain middleware (no withAuth wrapper):
+  - Reads the JWT directly via `getToken({ req, secret })` — domain-independent cookie reading.
+  - Public routes (/, /login, /signup, /forgot-password, /reset-password, /verify, /pricing, /privacy, /terms, /security, /cookies, /sitemap.xml, /robots.txt) always return NextResponse.next() — no auth check, no redirect.
+  - Protected routes without a token → single redirect to `/login?callbackUrl=<path>`.
+  - `/admin` with non-ADMIN role → redirect to `/dashboard`.
+  - Banned/suspended users → redirect to `/login?error=AccountSuspended`.
+  - Matcher excludes /api/auth, static assets, uploads.
+- Verified all redirect scenarios (curl):
+  - `/` → 200, `/login` → 200, `/privacy` → 200, `/sitemap.xml` → 200
+  - `/dashboard` (logged out) → 307 → /login?callbackUrl=%2Fdashboard (single redirect)
+  - `/admin` (logged out) → 307 → /login?callbackUrl=%2Fadmin (single redirect)
+- Verified full login flow via Agent Browser (cookies cleared):
+  - Landing → /login → login as admin → /admin ✅
+  - Logged-in admin visiting /dashboard → 200, no loop ✅
+  - 0 console errors throughout.
+
+Stage Summary:
+- ✅ Redirect loop FIXED — plain middleware with getToken reads the JWT cookie domain-independently.
+- ✅ No more withAuth wrapper → no built-in redirect logic that can loop.
+- ✅ All public routes serve without auth check; protected routes redirect once to /login.
+- ✅ Verified login as admin (→/admin) and free user (→/dashboard), navigation between protected pages, no loops.

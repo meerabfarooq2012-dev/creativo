@@ -1,66 +1,84 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const path = req.nextUrl.pathname;
-    const role = token?.role as string | undefined;
+/**
+ * Plain middleware (not withAuth) for route protection.
+ *
+ * We avoid next-auth's withAuth wrapper because its built-in redirect logic
+ * can cause redirect loops in proxied/preview environments where cookie
+ * domains differ. Instead we read the JWT ourselves and redirect explicitly.
+ */
 
-    // Protect admin area
-    if (path.startsWith("/admin")) {
-      if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
-    }
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/verify",
+  "/pricing",
+  "/privacy",
+  "/terms",
+  "/security",
+  "/cookies",
+];
 
-    // Protect dashboard area (must be authenticated - handled by withAuth)
-    // Allow all authenticated users
+const PUBLIC_EXACT = new Set([
+  "/",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/manifest.webmanifest",
+]);
+
+function isPublic(path: string): boolean {
+  if (PUBLIC_EXACT.has(path)) return true;
+  return PUBLIC_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
+}
+
+export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+
+  // Always allow public routes (no auth check, no redirect)
+  if (isPublic(path)) {
     return NextResponse.next();
-  },
-  {
-    pages: {
-      signIn: "/login",
-    },
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        // Always-public technical routes (SEO + assets)
-        if (
-          path === "/sitemap.xml" ||
-          path === "/robots.txt" ||
-          path === "/manifest.webmanifest"
-        ) {
-          return true;
-        }
-        // Public marketing/legal routes
-        if (
-          path === "/" ||
-          path.startsWith("/login") ||
-          path.startsWith("/signup") ||
-          path.startsWith("/forgot-password") ||
-          path.startsWith("/reset-password") ||
-          path.startsWith("/verify") ||
-          path.startsWith("/pricing") ||
-          path.startsWith("/privacy") ||
-          path.startsWith("/terms") ||
-          path.startsWith("/security") ||
-          path.startsWith("/cookies") ||
-          path.startsWith("/api/auth")
-        ) {
-          return true;
-        }
-        // Everything else requires a token
-        return !!token;
-      },
-    },
   }
-);
+
+  // Read the JWT token from the cookie (works across proxy domains)
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  // Not authenticated → redirect to /login with callbackUrl
+  if (!token) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("callbackUrl", path + req.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const role = (token.role as string | undefined) ?? "FREE_USER";
+
+  // Admin area: only ADMIN + SUPER_ADMIN
+  if (path.startsWith("/admin")) {
+    if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
+  // Banned/suspended users can't access app routes (only login/logout)
+  const status = (token.status as string | undefined) ?? "active";
+  if ((status === "banned" || status === "suspended") && !path.startsWith("/api/auth")) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("error", "AccountSuspended");
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  // Exclude NextAuth API routes so the middleware (withAuth) never intercepts
-  // them — this prevents the session endpoint from returning HTML/redirects
-  // instead of JSON (fixes [next-auth][error][CLIENT_FETCH_ERROR]).
+  // Exclude static assets, uploads, and NextAuth API routes (so session
+  // endpoints always return JSON, never get redirected).
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|uploads|logo.svg|robots.txt|api/auth).*)",
   ],
