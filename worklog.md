@@ -508,3 +508,27 @@ Stage Summary:
 - ✅ No more withAuth wrapper → no built-in redirect logic that can loop.
 - ✅ All public routes serve without auth check; protected routes redirect once to /login.
 - ✅ Verified login as admin (→/admin) and free user (→/dashboard), navigation between protected pages, no loops.
+
+---
+Task ID: 18 (Fix cookies not persisting through proxy → redirect loop)
+Agent: Main (Z.ai Code)
+Task: "redirected you too many times" still happening for user even after middleware fix. Root cause = NextAuth session cookie not being set/read correctly through the Caddy preview proxy.
+
+Work Log:
+- Diagnosed: curl login test showed POST /api/auth/callback/credentials returned 200 but NO session-token cookie was set (only callback-url cookie) → session empty {} → middleware sees no token → redirect to /login → loop.
+- Root cause: NextAuth's default cookie options weren't being set with attributes that survive the reverse-proxy/preview-domain environment. Added explicit `cookies` config to `authOptions` (src/lib/auth/auth-options.ts):
+  - sessionToken, callbackUrl, csrfToken, pkceCodeVerifier all set with `sameSite: "lax"`, `path: "/"`, `secure: false`, no pinned domain.
+  - This ensures the session cookie is set and readable regardless of the proxy domain.
+- Verified via Agent Browser (cookies cleared first):
+  - Login as admin → URL: /admin ✅
+  - Session cookie (next-auth.session-token) IS set ✅
+  - /api/auth/session returns full user (SUPER_ADMIN, TEAM, active) ✅
+  - Visit /dashboard logged out → /login?callbackUrl=/dashboard → login as free user → /dashboard ✅
+  - Visit / while logged in → 200, no redirect ✅
+  - 0 console errors throughout ✅
+- The remaining issue is user's browser holding STALE cookies from the old broken session. User must clear cookies (or use incognito) — instructions provided.
+
+Stage Summary:
+- ✅ NextAuth cookie config added (sameSite lax, path /, no domain pinning) → session cookie now persists through the Caddy preview proxy.
+- ✅ Full login flow verified in browser: login → session cookie set → protected page accessible → no loops.
+- ✅ User must clear browser cookies for the preview domain (or use incognito tab) to drop the stale broken session.
