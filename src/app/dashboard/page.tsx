@@ -5,69 +5,58 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   FolderKanban,
-  HardDrive,
-  CreditCard,
-  Activity,
-  Plus,
   PenTool,
   Brush,
   Image as ImageIcon,
   Video,
   Sparkles,
-  Megaphone,
+  Clapperboard,
+  Box,
   ArrowRight,
-  Pin,
+  Clock,
+  Palette,
+  LayoutTemplate,
+  Rocket,
+  Sparkle,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { PlanBadge } from "@/components/dashboard/plan-badge";
-import { StorageMeter } from "@/components/dashboard/storage-meter";
-import { ProjectCard } from "@/components/dashboard/project-card";
-import { EmptyState } from "@/components/dashboard/empty-state";
-import { formatMb, timeAgo } from "@/lib/dashboard/constants";
-import { PROJECT_TYPES } from "@/lib/dashboard/constants";
+import { timeAgo } from "@/lib/dashboard/constants";
 
-const QUICK_ACTIONS = [
-  { type: "design", label: "New Design", icon: PenTool, color: "#7C3AED" },
-  { type: "illustration", label: "New Illustration", icon: Brush, color: "#3B82F6" },
-  { type: "photo", label: "New Photo Edit", icon: ImageIcon, color: "#22C55E" },
-  { type: "video", label: "New Video Edit", icon: Video, color: "#F59E0B" },
-  { type: "animation", label: "New Animation", icon: Sparkles, color: "#EC4899" },
+const CREATE_OPTIONS = [
+  { type: "design", label: "Design", icon: PenTool, color: "#7C3AED", desc: "Posters, logos, social media" },
+  { type: "illustration", label: "Illustration", icon: Brush, color: "#3B82F6", desc: "Drawings, digital art" },
+  { type: "photo", label: "Photo Edit", icon: ImageIcon, color: "#22C55E", desc: "Retouch, filter, enhance" },
+  { type: "video", label: "Video Edit", icon: Video, color: "#F59E0B", desc: "Trim, effects, export" },
+  { type: "animation", label: "2D Animation", icon: Clapperboard, color: "#EC4899", desc: "Keyframes, motion" },
+  { type: "animation", label: "3D Animation", icon: Box, color: "#06B6D4", desc: "3D models, scenes" },
 ] as const;
 
-const chartConfig = {
-  count: { label: "Activity", color: "#7C3AED" },
-} satisfies ChartConfig;
+const BRAND_COLORS = [
+  { name: "Primary", hex: "#7C3AED", color: "bg-[#7C3AED]" },
+  { name: "Secondary", hex: "#3B82F6", color: "bg-[#3B82F6]" },
+  { name: "Accent 1", hex: "#22D3EE", color: "bg-[#22D3EE]" },
+  { name: "Accent 2", hex: "#22C55E", color: "bg-[#22C55E]" },
+  { name: "Accent 3", hex: "#F59E0B", color: "bg-[#F59E0B]" },
+  { name: "Danger", hex: "#EF4444", color: "bg-[#EF4444]" },
+];
+
+const TEMPLATE_CATEGORIES = [
+  { name: "Instagram Post", count: 24, color: "#7C3AED" },
+  { name: "YouTube Thumbnail", count: 18, color: "#F59E0B" },
+  { name: "Logo Design", count: 32, color: "#3B82F6" },
+  { name: "Poster", count: 15, color: "#22C55E" },
+  { name: "Business Card", count: 12, color: "#EC4899" },
+  { name: "Presentation", count: 20, color: "#06B6D4" },
+];
 
 export default function DashboardOverviewPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const [creating, setCreating] = useState<string | null>(null);
-
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["dashboard-stats"],
-    queryFn: async () => {
-      const res = await fetch("/api/dashboard/stats");
-      if (!res.ok) throw new Error("Failed");
-      return res.json();
-    },
-  });
 
   const { data: projectsData, isLoading: projectsLoading } = useQuery({
     queryKey: ["projects", "recent"],
@@ -78,28 +67,22 @@ export default function DashboardOverviewPage() {
     },
   });
 
-  const recentProjects = (projectsData?.projects ?? []).slice(0, 6);
+  const recentProjects = (projectsData?.projects ?? []).slice(0, 4);
 
-  const onQuickAction = async (type: string, label: string) => {
-    setCreating(type);
+  const onCreate = async (type: string, label: string) => {
+    setCreating(label);
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: `Untitled ${label.replace("New ", "")}`, type }),
+        body: JSON.stringify({ name: `Untitled ${label}`, type }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Failed");
-      }
-      const { project } = await res.json();
-      toast.success(`${label} created`, {
-        description: "Editor coming soon — project saved to your workspace.",
+      if (!res.ok) throw new Error("Failed");
+      toast.success(`${label} project created`, {
+        description: "Editor coming soon — saved to your workspace.",
       });
       qc.invalidateQueries({ queryKey: ["projects"] });
-      qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
       router.push("/dashboard/projects");
-      return project;
     } catch (e: any) {
       toast.error(e.message ?? "Could not create project");
     } finally {
@@ -108,312 +91,263 @@ export default function DashboardOverviewPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* Page header */}
+    <div className="mx-auto max-w-7xl space-y-8">
+      {/* Welcome header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Welcome back 👋</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Create Without Limits
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Here&apos;s what&apos;s happening in your creative workspace today.
+            Pick up where you left off, or start something new.
           </p>
         </div>
-        <Button asChild className="bg-gradient-brand text-white hover:opacity-90">
+        <Button
+          asChild
+          className="bg-gradient-brand text-white hover:opacity-90"
+        >
           <a href="/dashboard/projects">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
+            View All Projects
+            <ArrowRight className="ml-2 h-4 w-4" />
           </a>
         </Button>
       </div>
 
-      {/* Overview cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <OverviewCard
-          icon={FolderKanban}
-          label="Projects"
-          value={statsLoading ? null : String(stats?.projects ?? 0)}
-          hint={`${stats?.activeProjects ?? 0} active · ${stats?.archivedProjects ?? 0} archived`}
-          color="#7C3AED"
-          loading={statsLoading}
-        />
-        <OverviewCard
-          icon={HardDrive}
-          label="Storage Used"
-          value={statsLoading ? null : formatMb(stats?.storage?.usedMb ?? 0)}
-          hint={`${stats?.storage?.percent?.toFixed(0) ?? 0}% of ${formatMb(stats?.storage?.limitMb ?? 0)}`}
-          color="#3B82F6"
-          loading={statsLoading}
-          footer={
-            stats && (
-              <StorageMeter
-                usedMb={stats.storage.usedMb}
-                limitMb={stats.storage.limitMb}
-                compact
-              />
-            )
-          }
-        />
-        <OverviewCard
-          icon={CreditCard}
-          label="Active Plan"
-          value={statsLoading ? null : <PlanBadge plan={stats?.plan ?? "FREE"} />}
-          hint={
-            stats?.trialActive
-              ? `Trial · ends ${new Date(stats.trialEndsAt).toLocaleDateString()}`
-              : stats?.plan === "FREE"
-              ? "Upgrade for more storage"
-              : "Subscription active"
-          }
-          color="#22C55E"
-          loading={statsLoading}
-        />
-        <OverviewCard
-          icon={Activity}
-          label="Recent Activity"
-          value={
-            statsLoading
-              ? null
-              : stats?.latestActivity
-              ? stats.latestActivity.action.replace(/\./g, " ")
-              : "No activity yet"
-          }
-          hint={stats?.latestActivity ? timeAgo(stats.latestActivity.createdAt) : "—"}
-          color="#F59E0B"
-          loading={statsLoading}
-          smallValue
-        />
-      </div>
-
-      {/* Quick actions */}
+      {/* Continue Working — recent projects */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Quick Actions</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {QUICK_ACTIONS.map((a) => {
-            const Icon = a.icon;
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+            <Clock className="h-5 w-5 text-primary" />
+            Continue Working
+          </h2>
+          <a
+            href="/dashboard/projects"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            View all
+          </a>
+        </div>
+        {projectsLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+            ))}
+          </div>
+        ) : recentProjects.length === 0 ? (
+          <Card className="flex flex-col items-center justify-center gap-3 border-dashed bg-card/50 p-10 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-gradient-brand-soft">
+              <FolderKanban className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">No projects yet</p>
+              <p className="text-sm text-muted-foreground">
+                Create your first design below to get started.
+              </p>
+            </div>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {recentProjects.map((p: any) => (
+              <button
+                key={p.id}
+                onClick={() => router.push("/dashboard/projects")}
+                className="group overflow-hidden rounded-xl border border-border bg-card text-left transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-gradient-brand-soft">
+                  <div className="absolute inset-0 grid-pattern opacity-40" />
+                  <div className="absolute left-4 top-4 rounded-md bg-background/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
+                    {p.type}
+                  </div>
+                  <div className="absolute bottom-4 right-4 flex size-8 items-center justify-center rounded-full bg-gradient-brand text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    <ArrowRight className="size-4" />
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {p.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {timeAgo(p.updatedAt)}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Create New */}
+      <section>
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Create New
+        </h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {CREATE_OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            const isLoading = creating === opt.label;
             return (
               <button
-                key={a.type}
-                disabled={creating === a.type}
-                onClick={() => onQuickAction(a.type, a.label)}
-                className="group relative flex flex-col items-start gap-2 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg disabled:opacity-60"
+                key={opt.label}
+                onClick={() => onCreate(opt.type, opt.label)}
+                disabled={isLoading}
+                className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-4 text-center transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 disabled:opacity-50"
               >
                 <div
-                  className="flex h-10 w-10 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: `${a.color}20`, color: a.color }}
+                  className="flex size-12 items-center justify-center rounded-xl text-white shadow-lg transition-transform group-hover:scale-110"
+                  style={{ backgroundColor: opt.color, boxShadow: `0 8px 20px -8px ${opt.color}` }}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="size-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{a.label}</p>
-                  <p className="text-xs text-muted-foreground">Click to create</p>
+                  <p className="text-sm font-semibold text-foreground">{opt.label}</p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+                    {opt.desc}
+                  </p>
                 </div>
-                {creating === a.type && (
-                  <div className="absolute right-3 top-3 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                )}
               </button>
             );
           })}
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent projects */}
-        <section className="lg:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Recent Projects</h2>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/dashboard/projects">
-                View all
-                <ArrowRight className="ml-1 h-3.5 w-3.5" />
-              </a>
-            </Button>
-          </div>
-          {projectsLoading ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-44 w-full" />
+      {/* Choose Your Mode */}
+      <section>
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+          <Rocket className="h-5 w-5 text-primary" />
+          Choose Your Mode
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Beginner Mode */}
+          <Card className="group relative overflow-hidden border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/20">
+            <div className="absolute -right-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl transition-opacity group-hover:opacity-80" />
+            <div className="relative">
+              <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-lg shadow-primary/30">
+                <Sparkle className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Beginner Mode</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Drag-and-drop templates, basic editing tools. Perfect for getting
+                started — no design experience needed.
+              </p>
+              <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-primary" /> Drag-and-drop editor
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-primary" /> Free templates
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-primary" /> Basic editing tools
+                </li>
+              </ul>
+              <Button className="mt-5 w-full bg-gradient-brand text-white hover:opacity-90">
+                Choose Beginner
+              </Button>
+            </div>
+          </Card>
+
+          {/* Professional Mode */}
+          <Card className="group relative overflow-hidden border-secondary/40 bg-gradient-to-br from-secondary/10 to-secondary/5 p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-secondary/20">
+            <div className="absolute -right-8 -top-8 size-32 rounded-full bg-secondary/10 blur-2xl transition-opacity group-hover:opacity-80" />
+            <div className="relative">
+              <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-secondary text-white shadow-lg shadow-secondary/30">
+                <PenTool className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Professional Mode</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Full layer-based editor, all professional tools. For designers,
+                illustrators, and serious creators.
+              </p>
+              <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-secondary" /> Layer-based editor
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-secondary" /> All pro tools unlocked
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-secondary" /> Premium templates
+                </li>
+              </ul>
+              <Button
+                variant="outline"
+                className="mt-5 w-full border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 hover:text-secondary"
+              >
+                Choose Professional
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Color Palette + Templates (2 columns) */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Color Palette */}
+        <section>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+            <Palette className="h-5 w-5 text-primary" />
+            Color Palette
+          </h2>
+          <Card className="p-5">
+            <div className="grid grid-cols-3 gap-3">
+              {BRAND_COLORS.map((c) => (
+                <div
+                  key={c.hex}
+                  className="group cursor-pointer rounded-lg border border-border bg-card/50 p-3 transition-all hover:border-primary/40 hover:bg-card"
+                >
+                  <div
+                    className={`mb-2 h-12 w-full rounded-md ${c.color} shadow-sm transition-transform group-hover:scale-105`}
+                  />
+                  <p className="text-xs font-semibold text-foreground">{c.name}</p>
+                  <p className="font-mono text-[10px] text-muted-foreground">{c.hex}</p>
+                </div>
               ))}
             </div>
-          ) : recentProjects.length === 0 ? (
-            <EmptyState
-              icon={FolderKanban}
-              title="No projects yet"
-              description="Create your first design, illustration, or photo edit to get started."
-              action={
-                <Button asChild className="bg-gradient-brand">
-                  <a href="/dashboard/projects">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Project
-                  </a>
-                </Button>
-              }
-            />
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {recentProjects.map((p: any) => (
-                <ProjectCard key={p.id} project={p} />
-              ))}
-            </div>
-          )}
+          </Card>
         </section>
 
-        {/* Right column: Activity chart + Announcement */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Activity over time</CardTitle>
-              <CardDescription>Last 7 days</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Skeleton className="h-32 w-full" />
-              ) : (
-                <ChartContainer config={chartConfig} className="h-32 w-full">
-                  <AreaChart data={stats?.activitySeries ?? []} margin={{ left: -20, right: 6, top: 6, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                    <XAxis
-                      dataKey="label"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fill: "#94A3B8", fontSize: 11 }}
-                    />
-                    <YAxis
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fill: "#94A3B8", fontSize: 11 }}
-                      allowDecimals={false}
-                      width={28}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="count"
-                      stroke="#7C3AED"
-                      strokeWidth={2}
-                      fill="url(#activityGradient)"
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <Megaphone className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Announcement</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Skeleton className="h-24 w-full" />
-              ) : stats?.announcement ? (
-                <div>
-                  <div className="mb-1 flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold leading-tight">
-                      {stats.announcement.title}
-                    </h3>
-                    {stats.announcement.isPinned && (
-                      <Pin className="h-3.5 w-3.5 shrink-0 text-warning" />
-                    )}
+        {/* Templates */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+              <LayoutTemplate className="h-5 w-5 text-primary" />
+              Templates
+            </h2>
+            <a
+              href="/dashboard/templates"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              View all
+            </a>
+          </div>
+          <Card className="p-5">
+            <div className="grid grid-cols-2 gap-3">
+              {TEMPLATE_CATEGORIES.map((t) => (
+                <button
+                  key={t.name}
+                  onClick={() => router.push("/dashboard/templates")}
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-card/50 p-3 text-left transition-all hover:border-primary/40 hover:bg-card"
+                >
+                  <div
+                    className="flex size-10 shrink-0 items-center justify-center rounded-md text-white"
+                    style={{ backgroundColor: t.color }}
+                  >
+                    <LayoutTemplate className="size-5" />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {stats.announcement.summary ?? stats.announcement.content?.slice(0, 120)}
-                  </p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <Badge variant="outline" className="text-[10px] uppercase">
-                      {stats.announcement.type}
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground">
-                      {timeAgo(stats.announcement.publishedAt)}
-                    </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {t.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{t.count} templates</p>
                   </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No announcements yet.</p>
-              )}
-            </CardContent>
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                </button>
+              ))}
+            </div>
           </Card>
-        </div>
+        </section>
       </div>
-
-      {/* Create CTA */}
-      <Card className="overflow-hidden border-primary/30 bg-gradient-brand-soft">
-        <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Create New Project</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Start a fresh design, illustration, photo edit, video, or animation.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {PROJECT_TYPES.map((t) => (
-              <Button
-                key={t.value}
-                variant="outline"
-                size="sm"
-                onClick={() => onQuickAction(t.value, `New ${t.label}`)}
-                disabled={creating === t.value}
-              >
-                {t.label}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
-  );
-}
-
-function OverviewCard({
-  icon: Icon,
-  label,
-  value,
-  hint,
-  color,
-  loading,
-  footer,
-  smallValue,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: React.ReactNode;
-  hint?: string;
-  color: string;
-  loading?: boolean;
-  footer?: React.ReactNode;
-  smallValue?: boolean;
-}) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardDescription className="text-xs uppercase tracking-wide">{label}</CardDescription>
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg"
-            style={{ backgroundColor: `${color}20`, color }}
-          >
-            <Icon className="h-4 w-4" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <Skeleton className="h-7 w-24" />
-        ) : (
-          <div className={smallValue ? "text-sm font-semibold capitalize" : "text-2xl font-bold"}>
-            {value}
-          </div>
-        )}
-        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-        {footer && <div className="mt-3">{footer}</div>}
-      </CardContent>
-    </Card>
   );
 }
