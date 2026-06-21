@@ -9,13 +9,14 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   // Cookies configured for cross-origin iframe / preview environments.
-  // The preview runs inside an iframe on a different origin, so SameSite=Lax
-  // cookies are blocked by the browser on subsequent requests → redirect loop.
-  // SameSite=None + Secure allows the cookie to be sent in third-party iframes
-  // (the Caddy gateway terminates HTTPS, so Secure works).
+  // - SameSite=None + Secure: allows cookies in third-party iframes (preview
+  //   runs inside an iframe on a different origin; the gateway terminates HTTPS).
+  // - Custom names: if the browser holds stale cookies from a previous broken
+  //   session, the new names ensure a fresh session is used (no redirect loop
+  //   from old SameSite=Lax cookies that the browser refuses to send).
   cookies: {
     sessionToken: {
-      name: "next-auth.session-token",
+      name: "creativo-session",
       options: {
         httpOnly: true,
         sameSite: "none",
@@ -24,7 +25,7 @@ export const authOptions: NextAuthOptions = {
       },
     },
     callbackUrl: {
-      name: "next-auth.callback-url",
+      name: "creativo-callback",
       options: {
         sameSite: "none",
         path: "/",
@@ -32,7 +33,7 @@ export const authOptions: NextAuthOptions = {
       },
     },
     csrfToken: {
-      name: "next-auth.csrf-token",
+      name: "creativo-csrf",
       options: {
         httpOnly: true,
         sameSite: "none",
@@ -41,7 +42,7 @@ export const authOptions: NextAuthOptions = {
       },
     },
     pkceCodeVerifier: {
-      name: "next-auth.pkce.code-verifier",
+      name: "creativo-pkce",
       options: {
         httpOnly: true,
         sameSite: "none",

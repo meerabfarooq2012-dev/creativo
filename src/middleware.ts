@@ -55,10 +55,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Read the JWT token from the cookie (works across proxy domains)
+  // Read the JWT token from the cookie (works across proxy domains).
+  // cookieName matches the custom name set in authOptions.cookies.sessionToken.
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
+    cookieName: "creativo-session",
   });
 
   // Not authenticated → redirect to /login with callbackUrl
