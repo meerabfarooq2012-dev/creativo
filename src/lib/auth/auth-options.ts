@@ -8,43 +8,45 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  // Make cookies work behind reverse proxies / preview domains by not
-  // pinning a domain and keeping the path at root. sameSite "lax" allows
-  // the cookie to be sent on top-level navigations.
+  // Cookies configured for cross-origin iframe / preview environments.
+  // The preview runs inside an iframe on a different origin, so SameSite=Lax
+  // cookies are blocked by the browser on subsequent requests → redirect loop.
+  // SameSite=None + Secure allows the cookie to be sent in third-party iframes
+  // (the Caddy gateway terminates HTTPS, so Secure works).
   cookies: {
     sessionToken: {
       name: "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         path: "/",
-        secure: false,
+        secure: true,
       },
     },
     callbackUrl: {
       name: "next-auth.callback-url",
       options: {
-        sameSite: "lax",
+        sameSite: "none",
         path: "/",
-        secure: false,
+        secure: true,
       },
     },
     csrfToken: {
       name: "next-auth.csrf-token",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         path: "/",
-        secure: false,
+        secure: true,
       },
     },
     pkceCodeVerifier: {
       name: "next-auth.pkce.code-verifier",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         path: "/",
-        secure: false,
+        secure: true,
       },
     },
   },
