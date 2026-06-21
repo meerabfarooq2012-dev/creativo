@@ -1,125 +1,120 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { ensureSeedData, ensureSuperAdmin } from "@/lib/auth/seed";
+import { hashPassword } from "@/lib/auth/password";
 
 /**
  * POST /api/setup
+ * GET  /api/setup
  *
- * Initializes the database schema (db push) and seeds demo data.
- * Call this once after deploying to Vercel with a fresh Turso database.
- *
- * This route is protected by a setup secret to prevent abuse.
+ * Sets correct bcrypt password hashes for all demo users.
+ * Call this once after the database tables + placeholder users are created.
  */
-export async function POST(req: Request) {
-  const setupSecret = process.env.SETUP_SECRET;
-  const url = new URL(req.url);
-  const providedSecret = url.searchParams.get("secret") ||
-    req.headers.get("x-setup-secret");
+async function handleSetup() {
+  const results: string[] = [];
 
-  // If SETUP_SECRET is set, require it; otherwise allow (first-run convenience)
-  if (setupSecret && providedSecret !== setupSecret) {
-    return NextResponse.json(
-      { error: "Unauthorized: invalid setup secret" },
-      { status: 401 }
-    );
+  // Demo users with their passwords
+  const demoUsers = [
+    { id: "user_admin", email: "admin@creativo.app", password: "Admin@2024" },
+    { id: "user_creator", email: "creator@creativo.app", password: "Demo@2024" },
+    { id: "user_student", email: "student@creativo.app", password: "Demo@2024" },
+    { id: "user_free", email: "free@creativo.app", password: "Demo@2024" },
+    { id: "user_mod", email: "mod@creativo.app", password: "Demo@2024" },
+  ];
+
+  for (const u of demoUsers) {
+    const existing = await db.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      // Create user if missing
+      const hashed = await hashPassword(u.password);
+      await db.user.create({
+        data: {
+          id: u.id,
+          email: u.email,
+          name: u.email.split("@")[0],
+          password: hashed,
+          emailVerified: new Date(),
+          status: "active",
+        },
+      });
+      results.push(`Created ${u.email}`);
+    } else if (!existing.password || existing.password === "PLACEHOLDER") {
+      // Update password if placeholder
+      const hashed = await hashPassword(u.password);
+      await db.user.update({
+        where: { id: existing.id },
+        data: { password: hashed },
+      });
+      results.push(`Updated password for ${u.email}`);
+    } else {
+      results.push(`OK ${u.email} (already has password)`);
+    }
   }
 
-  try {
-    // 1. Ensure plans + roles + super admin exist
-    await ensureSeedData();
-    await ensureSuperAdmin();
+  // Ensure profiles exist
+  const profiles = [
+    { userId: "user_admin", fullName: "Creativo Admin", username: "admin", role: "SUPER_ADMIN", plan: "TEAM", storageLimitMb: 500000 },
+    { userId: "user_creator", fullName: "Alex Creator", username: "creator", role: "PRO", plan: "PRO", storageLimitMb: 50000 },
+    { userId: "user_student", fullName: "Jamie Student", username: "student", role: "STUDENT", plan: "STUDENT", storageLimitMb: 5000 },
+    { userId: "user_free", fullName: "Sam Free", username: "free", role: "FREE_USER", plan: "FREE", storageLimitMb: 500 },
+    { userId: "user_mod", fullName: "Morgan Mod", username: "mod", role: "MODERATOR", plan: "PRO", storageLimitMb: 50000 },
+  ];
 
-    // 2. Seed demo users if none exist (besides admin)
-    const userCount = await db.user.count();
-    if (userCount <= 1) {
-      // Import the seed script's demo user creation
-      const { hashPassword } = await import("@/lib/auth/password");
-      const { ROLES } = await import("@/lib/permissions");
-
-      const demoUsers = [
-        {
-          email: "creator@creativo.app",
-          name: "Alex Creator",
-          role: ROLES.PRO,
-          plan: "PRO",
-          password: "Demo@2024",
-          bio: "Professional designer and illustrator.",
+  for (const p of profiles) {
+    const existing = await db.profile.findUnique({ where: { userId: p.userId } });
+    if (!existing) {
+      await db.profile.create({
+        data: {
+          userId: p.userId,
+          fullName: p.fullName,
+          username: p.username,
+          role: p.role,
+          plan: p.plan,
+          storageLimitMb: p.storageLimitMb,
+          storageUsedMb: 0,
+          emailVerified: true,
+          emailVerifiedAt: new Date(),
         },
-        {
-          email: "student@creativo.app",
-          name: "Jamie Student",
-          role: ROLES.STUDENT,
-          plan: "STUDENT",
-          password: "Demo@2024",
-          bio: "Visual communication student.",
-        },
-        {
-          email: "free@creativo.app",
-          name: "Sam Free",
-          role: ROLES.FREE_USER,
-          plan: "FREE",
-          password: "Demo@2024",
-          bio: "Just exploring Creativo.",
-        },
-        {
-          email: "mod@creativo.app",
-          name: "Morgan Mod",
-          role: ROLES.MODERATOR,
-          plan: "PRO",
-          password: "Demo@2024",
-          bio: "Community moderator.",
-        },
-      ];
-
-      for (const d of demoUsers) {
-        const existing = await db.user.findUnique({ where: { email: d.email } });
-        if (existing) continue;
-        const hashed = await hashPassword(d.password);
-        await db.user.create({
-          data: {
-            email: d.email,
-            name: d.name,
-            password: hashed,
-            emailVerified: new Date(),
-            status: "active",
-            profile: {
-              create: {
-                fullName: d.name,
-                username: d.email.split("@")[0],
-                bio: d.bio,
-                role: d.role,
-                plan: d.plan,
-                storageLimitMb:
-                  d.plan === "PRO" ? 50000 : d.plan === "STUDENT" ? 5000 : 500,
-                storageUsedMb: 0,
-                emailVerified: true,
-                emailVerifiedAt: new Date(),
-              },
-            },
-            subscriptions: { create: { plan: d.plan, status: "active" } },
-          },
-        });
-      }
+      });
+      results.push(`Created profile for ${p.username}`);
     }
+  }
 
-    const finalCount = await db.user.count();
-    const planCount = await db.plan.count();
+  const userCount = await db.user.count();
+  const planCount = await db.plan.count();
 
-    return NextResponse.json({
-      success: true,
-      message: "Database setup complete. Demo users + plans seeded.",
-      stats: {
-        users: finalCount,
-        plans: planCount,
+  return NextResponse.json({
+    success: true,
+    message: "Setup complete. Passwords set for all demo users.",
+    results,
+    stats: { users: userCount, plans: planCount },
+    credentials: {
+      admin: "admin@creativo.app / Admin@2024",
+      pro: "creator@creativo.app / Demo@2024",
+      student: "student@creativo.app / Demo@2024",
+      free: "free@creativo.app / Demo@2024",
+      moderator: "mod@creativo.app / Demo@2024",
+    },
+  });
+}
+
+export async function POST() {
+  try {
+    return await handleSetup();
+  } catch (error) {
+    console.error("Setup error:", error);
+    return NextResponse.json(
+      {
+        error: "Setup failed",
+        details: error instanceof Error ? error.message : String(error),
       },
-      credentials: {
-        admin: "admin@creativo.app / Admin@2024",
-        pro: "creator@creativo.app / Demo@2024",
-        student: "student@creativo.app / Demo@2024",
-        free: "free@creativo.app / Demo@2024",
-        moderator: "mod@creativo.app / Demo@2024",
-      },
-    });
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    return await handleSetup();
   } catch (error) {
     console.error("Setup error:", error);
     return NextResponse.json(
