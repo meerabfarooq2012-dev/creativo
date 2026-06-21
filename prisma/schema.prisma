@@ -1,14 +1,13 @@
 // Creativo SaaS Platform - Database Schema
 // Phase 1 Foundation
-// Adapted from Supabase requirements to Prisma + SQLite (sandbox environment)
+// Uses PostgreSQL (Supabase) for production
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
