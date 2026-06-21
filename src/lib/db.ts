@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
 import { existsSync, mkdirSync } from "fs";
-import { dirname, join } from "path";
+import { dirname } from "path";
 
 /**
  * Creates a PrismaClient configured for the current environment:
@@ -25,7 +25,7 @@ function createPrismaClient(): PrismaClient {
       url: dbUrl,
       authToken: tursoToken,
     });
-    const adapter = new PrismaLibSql(libsql);
+    const adapter = new PrismaLibSQL(libsql);
     return new PrismaClient({
       log:
         process.env.NODE_ENV !== "production"
