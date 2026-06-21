@@ -1,47 +1,61 @@
-import { PrismaClient } from '@prisma/client'
-import { existsSync, mkdirSync } from 'fs'
-import { dirname, join } from 'path'
+import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
+import { existsSync, mkdirSync } from "fs";
+import { dirname, join } from "path";
 
 /**
- * Resolve the database file path.
- *
- * On Vercel/serverless, the filesystem is read-only EXCEPT for /tmp.
- * So if DATABASE_URL points to a relative file path (e.g. file:./db/custom.db),
- * we redirect it to /tmp so Prisma can write to it.
- *
- * On local dev (sandbox), we keep the original path.
+ * Creates a PrismaClient configured for the current environment:
+ * - On Vercel/production with Turso: uses the libSQL driver adapter
+ *   (DATABASE_URL = libsql://..., TURSO_AUTH_TOKEN = ...)
+ * - On local dev: uses a local SQLite file (file:./db/custom.db)
  */
-function resolveDatabaseUrl() {
-  let url = process.env.DATABASE_URL || 'file:./db/custom.db'
+function createPrismaClient(): PrismaClient {
+  const dbUrl = process.env.DATABASE_URL || "file:./db/custom.db";
+  const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
-  // Only rewrite file: URLs on Vercel (production) where FS is read-only
-  if (process.env.VERCEL && url.startsWith('file:')) {
-    const filePath = url.slice('file:'.length)
-    const fileName = filePath.split('/').pop() || 'custom.db'
-    // Use /tmp which is writable on Vercel serverless
-    const tmpPath = join('/tmp', fileName)
-    url = `file:${tmpPath}`
-    // Ensure the directory exists
-    const dir = dirname(tmpPath)
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+  // Turso / libSQL cloud database (production)
+  if (dbUrl.startsWith("libsql:") || dbUrl.startsWith("http")) {
+    if (!tursoToken) {
+      console.warn(
+        "⚠️  DATABASE_URL is a libSQL/http URL but TURSO_AUTH_TOKEN is not set."
+      );
+    }
+    const libsql = createClient({
+      url: dbUrl,
+      authToken: tursoToken,
+    });
+    const adapter = new PrismaLibSql(libsql);
+    return new PrismaClient({
+      log:
+        process.env.NODE_ENV !== "production"
+          ? ["query", "error", "warn"]
+          : ["error"],
+      adapter,
+    } as any);
   }
 
-  return url
-}
+  // Local SQLite file (development)
+  let url = dbUrl;
+  if (url.startsWith("file:")) {
+    const filePath = url.slice("file:".length);
+    const dir = dirname(filePath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  }
 
-const databaseUrl = resolveDatabaseUrl()
+  return new PrismaClient({
+    log:
+      process.env.NODE_ENV !== "production"
+        ? ["query", "error", "warn"]
+        : ["error"],
+    datasources: { db: { url } },
+  });
+}
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-  __dbUrl?: string
-}
+  prisma: PrismaClient | undefined;
+};
 
-// If the DB URL changed (e.g. between invocations) or no client exists, create one
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV !== 'production' ? ['query', 'error', 'warn'] : ['error'],
-    datasources: { db: { url: databaseUrl } },
-  })
+export const db = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;

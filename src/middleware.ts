@@ -25,6 +25,7 @@ const PUBLIC_PREFIXES = [
   "/terms",
   "/security",
   "/cookies",
+  "/api/setup",
 ];
 
 const PUBLIC_EXACT = new Set([
@@ -92,6 +93,6 @@ export const config = {
   // Exclude static assets, uploads, and NextAuth API routes (so session
   // endpoints always return JSON, never get redirected).
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|uploads|logo.svg|robots.txt|api/auth).*)",
+    "/((?!_next/static|_next/image|favicon.ico|uploads|logo.svg|robots.txt|api/auth|api/setup).*)",
   ],
 };
